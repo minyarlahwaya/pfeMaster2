@@ -145,7 +145,7 @@ Aucune migration, aucune nouvelle dépendance, aucune nouvelle clé : la clé `M
 | Instance | EC2 `t3.small`, Ubuntu 24.04, `us-east-1`, provisionnée par Terraform, installée par cloud-init |
 | IP | IP élastique `54.146.95.182` (`eipalloc-09a864995fee440c0`), réservée hors Terraform : **conservée entre les déploiements**, URL inchangée pour les clients |
 | HTTPS | Certificat Let's Encrypt, renouvellement automatique (`certbot.timer`) |
-| Données | Redéploiement du 31/10 (instance `i-006a6bd2a8ccdf41f`, commit `7163577`) : sauvegarde du 31/10 10 h 59 restaurée. Dernière sauvegarde chiffrée de la production : **31/10/2026 16 h 55 UTC** (`20261031T165500Z`) : 13 utilisateurs, 9 pneus, 42 commandes, 13 factures, 14 avis, 36 images |
+| Données | Redéploiement du 31/10 (instance `i-006a6bd2a8ccdf41f`, commit `7163577`) : sauvegarde du 31/10 10 h 59 restaurée. Sauvegarde finale chiffrée, prise juste avant `terraform destroy` : **31/10/2026 17 h 44 UTC** (`20261031T174440Z`) : 14 utilisateurs, 9 pneus, 43 commandes, 13 factures, 14 avis, 4 réclamations, 36 images. **Instance détruite le 31/10 vers 17 h 46 UTC** ; IP élastique conservée |
 | Contrôles | `/api/health` → `{"status":"ok","database":"up"}` ; assistants IA testés en production |
 
 Le 29 octobre, `ec2:RunInstances` était refusé sur le compte AWS Academy ; il est autorisé depuis le 30 octobre. Corrections intégrées à `scripts/install.sh` à la suite de ce déploiement : `--email` facultatif avec `--domain`, mise à jour de `COOKIE_SECURE`/`CORS_ORIGINS` lorsque HTTPS est activé après la première installation, redirection de l'accès par IP vers le nom de domaine (Certbot répondait 404).
@@ -871,10 +871,10 @@ grep -E '^EMAIL_(USER|PASS)=' backend/.env | \
 
 # 6. Données : restaurer la dernière sauvegarde chiffrée (base neuve = vide, sans compte admin)
 B=~/.local/share/landolsi/backups; P=~/.config/landolsi/db-backup.passphrase
-# Sauvegarde la plus récente (31/10/2026 16:55 UTC) : 13 utilisateurs, 9 pneus, 42 commandes, 13 factures, 36 images
-gpg --batch --pinentry-mode loopback --passphrase-file $P -o /tmp/landolsi.dump -d $B/landolsi_tires_20261031T165500Z.dump.gpg
-gpg --batch --pinentry-mode loopback --passphrase-file $P -o /tmp/uploads.tar.gz -d $B/uploads_20261031T165500Z.tar.gz.gpg
-sha256sum /tmp/landolsi.dump; cat $B/landolsi_tires_20261031T165500Z.dump.sha256.txt   # sommes identiques
+# Sauvegarde la plus récente (31/10/2026 17:44 UTC, avant terraform destroy) : 14 utilisateurs, 9 pneus, 43 commandes, 13 factures, 36 images
+gpg --batch --pinentry-mode loopback --passphrase-file $P -o /tmp/landolsi.dump -d $B/landolsi_tires_20261031T174440Z.dump.gpg
+gpg --batch --pinentry-mode loopback --passphrase-file $P -o /tmp/uploads.tar.gz -d $B/uploads_20261031T174440Z.tar.gz.gpg
+sha256sum /tmp/landolsi.dump; cat $B/landolsi_tires_20261031T174440Z.dump.sha256.txt   # sommes identiques
 scp -i ~/.ssh/landolsi_ec2_ed25519 /tmp/landolsi.dump /tmp/uploads.tar.gz ubuntu@$IP:/tmp/
 ssh -i ~/.ssh/landolsi_ec2_ed25519 ubuntu@$IP '
   sudo chmod 644 /tmp/landolsi.dump

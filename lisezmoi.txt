@@ -23,14 +23,16 @@ INFRASTRUCTURE (31/10/2026)
 - 31/10 16h26 UTC : REDÉPLOYÉ (instance i-006a6bd2a8ccdf41f, commit 7163577 :
   recherche de pneus par photo), HTTPS, Mistral et SMTP configurés,
   sauvegarde 20261031T105950Z restaurée.
-- SAUVEGARDE LA PLUS RÉCENTE (31/10/2026 16:55 UTC, prise sur la production :
-  13 utilisateurs, 9 pneus, 42 commandes, 13 factures, 14 avis, 36 images),
-  sur le poste d'administration :
-    ~/.local/share/landolsi/backups/landolsi_tires_20261031T165500Z.dump.gpg
-    ~/.local/share/landolsi/backups/landolsi_tires_20261031T165500Z.dump.sha256.txt
-      (somme du dump déchiffré : 443c7126fb3c95306ecce288755cd5967b7451de0ae069c3218ebd5cb470f726)
-    ~/.local/share/landolsi/backups/uploads_20261031T165500Z.tar.gz.gpg  (images)
-  Sauvegarde précédente : 20261031T105950Z (41 commandes, 12 factures).
+- 31/10 ~17h46 UTC : terraform destroy (instance terminée, IP élastique
+  54.146.95.182 CONSERVÉE, même URL au prochain apply).
+- SAUVEGARDE LA PLUS RÉCENTE (31/10/2026 17:44 UTC, prise juste avant le
+  destroy : 14 utilisateurs, 9 pneus, 43 commandes, 13 factures, 14 avis,
+  4 réclamations, 36 images), sur le poste d'administration :
+    ~/.local/share/landolsi/backups/landolsi_tires_20261031T174440Z.dump.gpg
+    ~/.local/share/landolsi/backups/landolsi_tires_20261031T174440Z.dump.sha256.txt
+      (somme du dump déchiffré : ef77a521a2c2cf343d1f058f7ec129271c5dec1c08022594a9e6cbd2058bfd4f)
+    ~/.local/share/landolsi/backups/uploads_20261031T174440Z.tar.gz.gpg  (images)
+  Sauvegardes précédentes : 20261031T165500Z, 20261031T105950Z.
   Même phrase secrète (~/.config/landolsi/db-backup.passphrase).
   Les sauvegardes du 30/10 (final_20261030T164228Z) sont plus anciennes.
 
