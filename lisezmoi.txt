@@ -20,12 +20,17 @@ INFRASTRUCTURE (31/10/2026)
   Coût ~3,6 $/mois sur le budget du lab tant qu'elle n'est pas associée.
 - Procédure complète de redéploiement : README.md §20, « Redéploiement complet
   sur AWS depuis GitHub ».
-- SAUVEGARDE LA PLUS RÉCENTE (31/10/2026 10:59 UTC, 13 utilisateurs, 9 pneus,
-  41 commandes, 12 factures, 36 images), sur le poste d'administration :
-    ~/.local/share/landolsi/backups/landolsi_tires_20261031T105950Z.dump.gpg
-    ~/.local/share/landolsi/backups/landolsi_tires_20261031T105950Z.dump.sha256.txt
-      (somme du dump déchiffré : 4d788eaca750610578c511e53ba48002f6a23dd78ac54ce57120b714bfe39d21)
-    ~/.local/share/landolsi/backups/uploads_20261031T105950Z.tar.gz.gpg  (images)
+- 31/10 16h26 UTC : REDÉPLOYÉ (instance i-006a6bd2a8ccdf41f, commit 7163577 :
+  recherche de pneus par photo), HTTPS, Mistral et SMTP configurés,
+  sauvegarde 20261031T105950Z restaurée.
+- SAUVEGARDE LA PLUS RÉCENTE (31/10/2026 16:55 UTC, prise sur la production :
+  13 utilisateurs, 9 pneus, 42 commandes, 13 factures, 14 avis, 36 images),
+  sur le poste d'administration :
+    ~/.local/share/landolsi/backups/landolsi_tires_20261031T165500Z.dump.gpg
+    ~/.local/share/landolsi/backups/landolsi_tires_20261031T165500Z.dump.sha256.txt
+      (somme du dump déchiffré : 443c7126fb3c95306ecce288755cd5967b7451de0ae069c3218ebd5cb470f726)
+    ~/.local/share/landolsi/backups/uploads_20261031T165500Z.tar.gz.gpg  (images)
+  Sauvegarde précédente : 20261031T105950Z (41 commandes, 12 factures).
   Même phrase secrète (~/.config/landolsi/db-backup.passphrase).
   Les sauvegardes du 30/10 (final_20261030T164228Z) sont plus anciennes.
 
