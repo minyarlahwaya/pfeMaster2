@@ -150,6 +150,18 @@ Aucune migration, aucune nouvelle dépendance, aucune nouvelle clé : la clé `M
 
 Le 29 octobre, `ec2:RunInstances` était refusé sur le compte AWS Academy ; il est autorisé depuis le 30 octobre. Corrections intégrées à `scripts/install.sh` à la suite de ce déploiement : `--email` facultatif avec `--domain`, mise à jour de `COOKIE_SECURE`/`CORS_ORIGINS` lorsque HTTPS est activé après la première installation, redirection de l'accès par IP vers le nom de domaine (Certbot répondait 404).
 
+### Conception UML (31 octobre 2026)
+
+Dossier [`docs/conception/`](docs/conception/) : pages web autonomes (sans connexion Internet), à ouvrir dans un navigateur.
+
+| Page | Contenu |
+|---|---|
+| [`index.html`](docs/conception/index.html) | Accueil du dossier de conception |
+| [`cas-utilisation.html`](docs/conception/cas-utilisation.html) | Diagramme de cas d'utilisation global : 3 acteurs principaux, 3 systèmes externes (Mistral AI, SMTP, Telegram), 36 cas en espaces public / client / administrateur, avec la correspondance de chaque cas vers les routes de l'API |
+| [`diagramme-classes.html`](docs/conception/diagramme-classes.html) | Diagramme de classes global : 11 classes (modèles Sequelize), 4 énumérations, associations et multiplicités, dictionnaire des classes |
+
+Chaque page permet de zoomer, de télécharger le diagramme en SVG (insertion sans perte dans le rapport) et d'imprimer en PDF. Les SVG sont aussi fournis à part (`landolsi-*.svg`). Après une évolution des modèles, régénérer avec `python3 docs/conception/source/build.py docs/conception` (Python 3, sans dépendance).
+
 ## 1. Présentation
 
 **LANDOLSI TIRES** est une application web de vente de pneumatiques, accessible depuis un navigateur sur ordinateur ou téléphone. Elle vise à faciliter la recherche de pneus, la préparation d'une commande et le suivi des opérations par l'administrateur.
@@ -239,6 +251,7 @@ projet_Landolsi/
 ├── infra/aws/                  # Terraform EC2 (AWS Academy)
 ├── infra/cloud-init/           # Amorçage EC2
 ├── tests/deployment/           # Contrôles de déploiement et test sauvegarde/restauration
+├── docs/conception/            # Conception UML : cas d'utilisation et diagramme de classes (pages web)
 └── docs/deployment/            # Architecture, base de données, AWS, dépannage, retour arrière
 ```
 

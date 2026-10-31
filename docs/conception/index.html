@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conception UML — LANDOLSI TIRES</title>
+<style>
+:root{--red:#c8102e;--ink:#111827;--muted:#4b5563;--line:#e5e7eb;--bg:#f7f7f8}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+header.top{background:#111;color:#fff;padding:14px 28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+header.top strong{font-size:18px;letter-spacing:.5px}
+header.top strong span{color:var(--red)}
+header.top nav a{color:#d1d5db;text-decoration:none;margin-right:18px;font-size:14px}
+header.top nav a.on,header.top nav a:hover{color:#fff;border-bottom:2px solid var(--red)}
+main{max-width:1280px;margin:0 auto;padding:28px}
+h1{font-size:28px;margin:0 0 6px}
+h2{font-size:20px;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+p.lead{color:var(--muted);margin:0 0 18px;max-width:900px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.toolbar button{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:7px 14px;font-size:14px;cursor:pointer}
+.toolbar button:hover{border-color:var(--red);color:var(--red)}
+.toolbar span{color:var(--muted);font-size:13px;margin-left:6px}
+.canvas{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:82vh;padding:10px}
+.canvas svg{display:block;height:auto;transition:width .15s}
+table{border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f3f4f6;font-weight:600}
+td code,p code,li code{background:#f3f4f6;border-radius:4px;padding:1px 5px;font-size:12.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;text-decoration:none;color:inherit;transition:box-shadow .2s}
+.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:var(--red)}
+.card h3{margin:0 0 6px;color:var(--red)}
+.legend li{margin:4px 0}
+footer{color:var(--muted);font-size:12.5px;text-align:center;padding:30px}
+@media print{header.top,.toolbar,footer{display:none}body{background:#fff}main{max-width:none;padding:0}
+ .canvas{border:none;max-height:none;overflow:visible;padding:0}.canvas svg{width:100%!important}h2{break-after:avoid}table{break-inside:auto}}
+</style>
+</head>
+<body>
+<header class="top"><strong>LANDOLSI <span>TIRES</span> · Conception UML</strong><nav><a href="index.html" class=on>Accueil conception</a><a href="cas-utilisation.html">Cas d'utilisation</a><a href="diagramme-classes.html">Diagramme de classes</a></nav></header>
+<main>
+<h1>Conception UML — LANDOLSI TIRES</h1>
+<p class="lead">Dossier de conception de la plateforme web de vente de pneumatiques. Les diagrammes sont réalisés à partir du code
+de l'application (backend Express/Sequelize, frontend React) et reflètent son état réel au 31 octobre 2026, recherche de pneus par photo incluse.</p>
+<div class="grid">
+<a class="card" href="cas-utilisation.html"><h3>Diagramme de cas d'utilisation global</h3>
+<p>3 acteurs principaux (Visiteur, Client, Administrateur), 3 systèmes externes (Mistral AI, SMTP, Telegram), 36 cas d'utilisation répartis en espaces public, client et administrateur.</p></a>
+<a class="card" href="diagramme-classes.html"><h3>Diagramme de classes global</h3>
+<p>11 classes du domaine (dont une classe d'association), 4 énumérations, 11 associations avec multiplicités, compositions Commande–Facture et Commande–CommandeItem.</p></a>
+</div>
+<h2>Utilisation</h2>
+<ul class="legend">
+<li>Pages autonomes : elles s'ouvrent directement dans un navigateur, sans connexion Internet ni serveur.</li>
+<li>« Télécharger le SVG » exporte le diagramme en image vectorielle (insertion sans perte dans le rapport Word ou LaTeX).</li>
+<li>« Imprimer / PDF » produit une version imprimable (diagramme pleine largeur et tableaux explicatifs).</li>
+</ul>
+
+</main>
+<footer>Projet de fin d'études — LANDOLSI TIRES · Diagrammes établis à partir du code source (modèles Sequelize, routes Express, interface React) · octobre 2026</footer>
+</body>
+</html>
