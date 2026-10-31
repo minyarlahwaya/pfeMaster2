@@ -76,20 +76,24 @@ function createMistralClient(options = {}) {
     }
 
     /**
-     * @param {{messages: object[], tools?: object[], temperature?: number, maxTokens?: number}} req
+     * @param {{messages: object[], tools?: object[], temperature?: number, maxTokens?: number,
+     *          model?: string, responseFormat?: object}} req
+     *   model : autre modèle que celui par défaut (ex. lecture d'image)
+     *   responseFormat : ex. { type: "json_object" } pour imposer une réponse JSON
      * @returns {Promise<{role: string, content: string|null, tool_calls?: object[]}>}
      */
-    async function chat({ messages, tools, temperature = 0.2, maxTokens = 900 }) {
+    async function chat({ messages, tools, temperature = 0.2, maxTokens = 900, model, responseFormat }) {
         if (!isConfigured()) {
             throw new AiServiceError("Assistant IA non configuré", { code: "AI_NOT_CONFIGURED" });
         }
 
         const body = {
-            model: settings.model,
+            model: model || settings.model,
             messages,
             temperature,
             max_tokens: maxTokens
         };
+        if (responseFormat) body.response_format = responseFormat;
         if (tools && tools.length) {
             body.tools = tools;
             body.tool_choice = "auto";

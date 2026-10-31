@@ -121,6 +121,22 @@ Configuration : `EMAIL_USER` (adresse Gmail) et `EMAIL_PASS` (**mot de passe d'a
 
 Trois assistants (conseiller pneus, service après-vente, analyse commerciale administrateur) reposant sur l'API Mistral avec appel d'outils métier : voir [§15 bis](#15-bis-assistants-ia-mistral). La clé `MISTRAL_API_KEY` reste exclusivement côté serveur ; au redéploiement, elle est injectée par `scripts/configure-ai.sh` (voir [§20](#redéploiement-complet-sur-aws-depuis-github-procédure-de-référence)).
 
+### Recherche de pneus par photo (31 octobre 2026)
+
+Le client photographie (ou importe une photo de) **son pneu usé** ; le site lit les inscriptions du flanc (marque, modèle, dimension, indices de charge et de vitesse, code DOT) et propose les **pneus neufs correspondants du catalogue**. Accès : fenêtre « Rechercher mes pneus » > **Par photo du pneu**, lien sous le formulaire de recherche de l'accueil, ou directement `/recherche/photo`. Détail : [§15 bis — Recherche par photo](#recherche-de-pneus-par-photo).
+
+| Élément | Fichiers |
+|---|---|
+| Lecture de la photo (Mistral vision), validation des valeurs lues, rapprochement avec le catalogue | `backend/services/ai/tirePhoto.js` |
+| Routes `POST /ai/tire-photo/analyze` et `POST /ai/tire-photo/match` | `backend/controllers/TirePhotoController.js`, `backend/routes/aiRoutes.js` |
+| Téléversement en mémoire (aucune écriture disque) | `backend/middleware/uploadPhotoMemory.js` |
+| Modèle et réponse JSON paramétrables | `backend/services/ai/mistralClient.js`, `backend/config/index.js` |
+| Page (appareil photo / import, lecture, correction, résultats, ajout au panier) | `frontend/src/pages/SearchResults/SearchResultsPhoto.jsx`, `.css`, `frontend/src/utils/prepareTirePhoto.js`, `frontend/src/services/aiApi.js` |
+| Points d'entrée | `frontend/src/components/Search/SearchModal.jsx`, `components/TireSearch/TireSearch.jsx`, `App.jsx` |
+| Tests | `backend/test/tire-photo.test.js` (23 tests, Mistral et base simulés) |
+
+Aucune migration, aucune nouvelle dépendance, aucune nouvelle clé : la clé `MISTRAL_API_KEY` existante suffit (`ministral-14b-latest` lit les images).
+
 ### Déploiement AWS réalisé (30 et 31 octobre 2026)
 
 | Élément | Valeur |
@@ -154,6 +170,7 @@ Le modèle opérationnel retenu est le **retrait de la commande par le client ch
 - Création d'une commande et consultation de ses détails/statut.
 - Consultation des factures associées à ses propres commandes (un client ne peut pas ouvrir la facture d'un autre client) ; réception de la facture par e-mail à la confirmation de la commande.
 - Dépôt et consultation d'avis et de réclamations.
+- Recherche de pneus **à partir d'une photo** du pneu usé (appareil photo du téléphone ou image importée) : lecture de la marque, du modèle et de la dimension, puis proposition des pneus neufs équivalents du catalogue ; lecture modifiable avant une nouvelle recherche.
 - Utilisation du chatbot d'assistance : conseiller IA pour choisir ses pneus (fiches, comparaison, ajout au panier) et assistant après-vente (suivi de commande, politiques publiées, brouillon de réclamation).
 
 ### Espace administrateur
@@ -502,7 +519,7 @@ Ne mettez jamais le jeton du bot dans React, dans le README ou dans Git. Si un w
 
 ## 15 bis. Assistants IA Mistral
 
-Trois assistants s'appuient sur l'API Mistral (appel d'outils). **Le LLM ne fait que choisir une fonction métier et rédiger** : prix, stocks, compatibilités, indicateurs et droits d'accès sont calculés par le backend à partir de PostgreSQL. Aucun SQL ni code n'est généré par le modèle ; ses arguments sont validés contre un schéma strict.
+Trois assistants s'appuient sur l'API Mistral (appel d'outils). **Le LLM ne fait que choisir une fonction métier et rédiger** : prix, stocks, compatibilités, indicateurs et droits d'accès sont calculés par le backend à partir de PostgreSQL. Aucun SQL ni code n'est généré par le modèle ; ses arguments sont validés contre un schéma strict. La **recherche par photo** applique le même principe : le modèle de vision lit le flanc du pneu, le serveur valide la lecture et choisit les produits.
 
 | Assistant | Route | Accès | Interface |
 |---|---|---|---|
@@ -510,6 +527,8 @@ Trois assistants s'appuient sur l'API Mistral (appel d'outils). **Le LLM ne fait
 | Service après-vente | `POST /ai/support/chat` | public ; commandes si connecté | widget, onglet « Service après-vente » |
 | Analyse commerciale | `POST /ai/admin/analytics/chat` | `requireAdmin` | `/admin/assistant-ia` |
 | Indicateurs (sans LLM) | `GET /ai/admin/analytics/kpis` | `requireAdmin` | `/admin/assistant-ia` |
+| Recherche par photo | `POST /ai/tire-photo/analyze` (multipart, champ `photo`) | public | `/recherche/photo` |
+| Recherche corrigée (sans LLM) | `POST /ai/tire-photo/match` | public | `/recherche/photo` |
 
 Corps des requêtes de chat : `{ "message": "...", "history": [{ "role": "user"|"assistant", "content": "..." }] }` (1 000 caractères max, 12 messages d'historique max ; les rôles `system`/`tool` envoyés par le navigateur sont ignorés).
 
@@ -523,8 +542,11 @@ backend/services/ai/
   tireTools.js        search_tires, get_tire_details, compare_tires, check_vehicle_compatibility, list_catalog_options
   analyticsTools.js   sales_summary, top_products, sales_by_brand_and_season, stock_alerts, restock_suggestions, margin_analysis, conversion_analysis
   supportTools.js     search_support_docs (RAG lexical), get_my_orders, get_order_status, prepare_support_ticket
+  tirePhoto.js        recherche par photo : consigne de vision, validation de la lecture, pneus correspondants
 backend/data/support-docs/   documents officiels cités par l'assistant SAV
-backend/controllers/AiController.js, backend/routes/aiRoutes.js
+backend/controllers/AiController.js, TirePhotoController.js, backend/routes/aiRoutes.js
+backend/middleware/uploadPhotoMemory.js            photo du client en mémoire uniquement
+frontend/src/pages/SearchResults/SearchResultsPhoto.jsx  page /recherche/photo
 backend/middleware/rateLimit.js, optionalAuth.js
 frontend/src/components/chatbot/Chatbot.jsx       widget (2 onglets, fiches, comparaison, panier, brouillon de réclamation)
 frontend/src/components/admin/AdminAssistantIA.jsx tableau de bord + chat admin
@@ -566,11 +588,39 @@ Sans clé (ou avec les valeurs d'exemple `replace_with_...` de `.env.example`), 
 - **Données personnelles** : aucun nom, e-mail, téléphone ni adresse n'est envoyé à Mistral ; les conversations ne sont pas stockées côté serveur ni journalisées.
 - **Coûts** : 15 requêtes/min/IP, 5 tours d'outils max, 900 jetons max par réponse, délai de 30 s.
 
+### Recherche de pneus par photo
+
+**Parcours :** le client prend la photo (`capture="environment"` ouvre l'appareil photo arrière sur mobile) ou importe une image → le navigateur la réduit à 1 600 px et la réencode en JPEG (envoi rapide, **métadonnées EXIF et position GPS supprimées**) → le serveur la transmet au modèle de vision → les informations reconnues s'affichent avec leur niveau de confiance → les pneus neufs correspondants s'affichent avec prix, promotion, stock, lien vers la fiche et ajout au panier. Le client peut **corriger** la dimension, la marque ou le modèle et relancer la recherche ; cette relance (`/ai/tire-photo/match`) n'utilise pas l'IA. Le même formulaire permet une recherche manuelle sans photo.
+
+**Répartition des rôles (le modèle ne fait que lire) :**
+
+| Étape | Réalisée par | Garde-fou |
+|---|---|---|
+| Lecture des inscriptions du flanc | Mistral vision (`temperature 0`, réponse JSON imposée) | consigne : valeur illisible = `null`, ne jamais compléter un chiffre |
+| Validation de la dimension | serveur | largeur 125–355 (pas de 5), série 25–85 (pas de 5), jante 12–24 : sinon rejetée et signalée |
+| Indices, DOT | serveur | charge 60–130, vitesse dans la liste ETRTO ; DOT `SSAA` non futur → âge calculé, alerte au-delà de 6 ans |
+| Marque | serveur | rapprochée des marques **réelles** de la table `Marques` ; une marque absente est signalée, jamais inventée |
+| Choix des pneus | serveur (requête Sequelize paramétrée) | même dimension exacte ; fiches incohérentes (étiquette ≠ colonnes) exclues |
+
+**Classement des propositions :** même marque et même modèle → même marque → même dimension (autres marques) ; à rang égal, en stock d'abord puis prix effectif (promotion incluse). Si la dimension n'est pas lisible mais la marque l'est, les pneus de cette marque sont proposés avec le badge **« Dimension à vérifier »**. Sans dimension ni marque, aucun produit n'est proposé et le client est invité à reprendre la photo ou à saisir la dimension.
+
+**Sécurité et confidentialité :**
+- photo reçue **en mémoire** (Multer `memoryStorage`), jamais écrite sur le disque, ni en base, ni dans les journaux ; 5 Mo maximum, une seule image ;
+- type vérifié sur la **signature binaire** (JPEG, PNG, WEBP), pas sur l'extension ni sur le type déclaré ;
+- 5 analyses par minute et par IP (`AI_PHOTO_RATE_LIMIT_PER_MINUTE`), limite appliquée **avant** la réception du fichier ; 30/min pour la recherche corrigée ;
+- texte lu nettoyé (balises retirées, longueur bornée) et affiché par React sans `innerHTML` ;
+- la page informe le client que la photo est analysée par Mistral AI puis supprimée.
+
+**Limites :** la lecture dépend de la qualité de la photo. Sur un pneu très usé, sale ou photographié de loin, la dimension (petits caractères en relief) peut être illisible : le modèle renvoie alors `null` plutôt que de deviner. Essais réels (31/10/2026, `ministral-14b-latest`, ~2 à 4 s par photo) : gros plans de flanc lus correctement (marque, gamme, dimension, indices, DOT) ; photos du catalogue (500 px, pneu entier) : marque et gamme lues, dimension non lue ; logos et photo floue rejetés. La compatibilité avec le véhicule n'est pas vérifiée par cette fonction : la page rappelle de contrôler la dimension préconisée (carnet, étiquette de portière) et de conserver des indices au moins égaux.
+
+**Configuration (facultative) :** `MISTRAL_VISION_MODEL` (défaut : `MISTRAL_MODEL`, sinon `ministral-14b-latest`), `AI_PHOTO_RATE_LIMIT_PER_MINUTE` (défaut 5). Le modèle choisi doit accepter les images (`capabilities.vision` dans `GET https://api.mistral.ai/v1/models`). Nginx accepte déjà des requêtes de 6 Mo (`client_max_body_size 6m`).
+
 ### Tests
 
 ```bash
 cd backend
 node --test test/ai.test.js        # tests des assistants, Mistral et base simulés, sans crédit
+node --test test/tire-photo.test.js  # recherche par photo, Mistral et base simulés, sans crédit
 node test/ai.live.js               # test réel (consomme quelques crédits), données simulées
 ```
 
@@ -707,6 +757,7 @@ Pistes restantes :
 - ajouter une surveillance de disponibilité externe et la copie automatique des sauvegardes hors de l'instance;
 - mettre à jour les dépendances anciennes du backend (Express 4.16, `jade`);
 - documenter automatiquement tous les endpoints (par exemple avec OpenAPI/Swagger).
+- recherche par photo : mesurer le taux de lecture correcte sur de vraies photos clients (journal anonyme des seuls résultats, avec accord) et proposer, si besoin, un modèle de vision plus grand via `MISTRAL_VISION_MODEL`.
 
 ## 20. Déploiement en production (AWS EC2 Ubuntu)
 

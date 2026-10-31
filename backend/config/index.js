@@ -85,7 +85,13 @@ const config = {
         timeoutMs: toInt(env.MISTRAL_TIMEOUT_MS, 30000),
         maxToolRounds: toInt(env.AI_MAX_TOOL_ROUNDS, 5),
         // Requêtes IA autorisées par IP et par minute
-        rateLimitPerMinute: toInt(env.AI_RATE_LIMIT_PER_MINUTE, 15)
+        rateLimitPerMinute: toInt(env.AI_RATE_LIMIT_PER_MINUTE, 15),
+        // Recherche par photo du pneu : modèle capable de lire une image
+        // (par défaut le même que MISTRAL_MODEL ; ministral-14b le permet)
+        visionModel: unlessPlaceholder(env.MISTRAL_VISION_MODEL)
+            || unlessPlaceholder(env.MISTRAL_MODEL) || "ministral-14b-latest",
+        // Analyses de photo autorisées par IP et par minute (plus coûteuses)
+        photoRateLimitPerMinute: toInt(env.AI_PHOTO_RATE_LIMIT_PER_MINUTE, 5)
     }
 };
 

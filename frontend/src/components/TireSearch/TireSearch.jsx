@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaCamera, FaSearch } from "react-icons/fa";
 
 import { getAllPneus } from "../../services/pneuApi";
 import "./TireSearch.css";
@@ -132,6 +132,11 @@ function TireSearch() {
             Rechercher
           </button>
         </form>
+
+        <Link to="/recherche/photo" className="search-photo-link">
+          <FaCamera />
+          Vous ne connaissez pas la dimension ? Trouvez vos pneus à partir d'une photo
+        </Link>
       </div>
     </section>
   );

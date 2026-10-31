@@ -101,3 +101,18 @@
     max-width: 350px;
   }
 }
+
+/* Lien vers la recherche par photo du pneu */
+.search-photo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: #e30613;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.search-photo-link:hover {
+  text-decoration: underline;
+}

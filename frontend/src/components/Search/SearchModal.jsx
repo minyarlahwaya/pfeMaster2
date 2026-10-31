@@ -2,13 +2,15 @@
 import "./SearchModal.css";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
     FaTimes,
     FaRulerCombined,
     FaCar,
     FaTag,
-    FaCloudSun
+    FaCloudSun,
+    FaCamera
 } from "react-icons/fa";
 
 import SearchParDimension from "./SearchParDimension";
@@ -20,6 +22,13 @@ import SearchParImmatriculation from "./SearchParImmatriculation";
 function SearchModal({ onClose }) {
 
     const [searchType, setSearchType] = useState("menu");
+
+    const navigate = useNavigate();
+
+    const ouvrirRecherchePhoto = () => {
+        onClose();
+        navigate("/recherche/photo");
+    };
 
 
     return (
@@ -153,6 +162,43 @@ function SearchModal({ onClose }) {
 
                                     <p>
                                         Largeur, hauteur et diamètre
+                                    </p>
+
+                                </div>
+
+
+                                <span className="search-option-arrow">
+                                    ›
+                                </span>
+
+                            </button>
+
+
+                            {/* =========================
+                                PAR PHOTO DU PNEU
+                            ========================= */}
+
+                            <button
+                                type="button"
+                                className="search-option"
+                                onClick={ouvrirRecherchePhoto}
+                            >
+
+                                <div className="search-option-icon">
+
+                                    <FaCamera />
+
+                                </div>
+
+
+                                <div className="search-option-content">
+
+                                    <h3>
+                                        Par photo du pneu
+                                    </h3>
+
+                                    <p>
+                                        Photographiez votre pneu usé, nous trouvons l'équivalent neuf
                                     </p>
 
                                 </div>

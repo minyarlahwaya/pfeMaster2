@@ -22,6 +22,7 @@ import SearchResults from "./pages/SearchResults/SearchResult";
 import SearchResultsMarque from "./pages/SearchResults/SearchResultsMarque";
 import SearchResultsSaison from "./pages/SearchResults/SearchResultsSaison";
 import SearchResultsImmatriculation from "./pages/SearchResults/SearchResultsImmatriculation";
+import SearchResultsPhoto from "./pages/SearchResults/SearchResultsPhoto";
 
 import {
     CartProvider,
@@ -204,6 +205,11 @@ function AppContent() {
                 <Route
                     path="/recherche/immatriculation"
                     element={<SearchResultsImmatriculation />}
+                />
+
+                <Route
+                    path="/recherche/photo"
+                    element={<SearchResultsPhoto />}
                 />
 
 
