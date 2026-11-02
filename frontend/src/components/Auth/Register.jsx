@@ -383,49 +383,11 @@ function Register() {
 
                             <h3>Informations entreprise</h3>
 
-                            <div className="field">
-                                <input
-                                    type="text"
-                                    name="raisonSociale"
-                                    placeholder="Raison sociale *"
-                                    value={formData.raisonSociale}
-                                    onChange={handleChange}
-                                    className={
-                                        errors.raisonSociale ? "input-error" : ""
-                                    }
-                                />
-                                {renderError("raisonSociale")}
-                            </div>
+                            
 
-                            <div className="field">
-                                <input
-                                    type="text"
-                                    name="activite"
-                                    placeholder="Activité"
-                                    value={formData.activite}
-                                    onChange={handleChange}
-                                    className={
-                                        errors.activite ? "input-error" : ""
-                                    }
-                                />
-                                {renderError("activite")}
-                            </div>
+                            
 
-                            <div className="field">
-                                <input
-                                    type="text"
-                                    name="identifiantEntreprise"
-                                    placeholder="SIRET / SIREN *"
-                                    value={formData.identifiantEntreprise}
-                                    onChange={handleChange}
-                                    className={
-                                        errors.identifiantEntreprise
-                                            ? "input-error"
-                                            : ""
-                                    }
-                                />
-                                {renderError("identifiantEntreprise")}
-                            </div>
+                            
 
                             <div className="field">
                                 <input
@@ -484,13 +446,26 @@ function Register() {
 
                     {/* BOUTON */}
 
-                    <button
-                        type="submit"
-                        className="submit-btn"
-                        disabled={loading}
-                    >
-                        {loading ? "Création en cours..." : "Créer mon compte"}
-                    </button>
+                    <div className="register-buttons">
+    <button
+        type="submit"
+        className="submit-btn"
+        disabled={loading}
+    >
+        {loading ? "Création en cours..." : "Créer mon compte"}
+    </button>
+
+    <button
+        type="button"
+        className="btn-cancel"
+        disabled={loading}
+        onClick={() => navigate("/")}
+    >
+        Annuler
+    </button>
+</div>
+
+                    
 
                 </form>
 

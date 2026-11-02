@@ -909,7 +909,10 @@ module.exports.getAllCommandesAdmin = async (req, res) => {
                         "nom",
                         "prenom",
                         "email",
-                        "telephone"
+                        "telephone",
+                        "typeClient",
+                        "numeroTVA",
+                        "secteur"
                     ]
                 },
 
@@ -1008,8 +1011,7 @@ module.exports.updateStatutCommande = async (req, res) => {
             "en attente",
             "confirmée",
             "en préparation",
-            "expédiée",
-            "livrée",
+            "récupérée",
             "annulée"
         ];
 
@@ -1037,13 +1039,13 @@ module.exports.updateStatutCommande = async (req, res) => {
         // ========================================
 
         const commande = await Commande.findByPk(id);
-            
-           
+
+
 
         if (!commande) {
-            
 
-            
+
+
 
 
             return res.status(404).json({
@@ -1057,7 +1059,7 @@ module.exports.updateStatutCommande = async (req, res) => {
 
         }
 
-           // MÉMORISER L'ANCIEN STATUT
+        // MÉMORISER L'ANCIEN STATUT
         const ancienStatut = commande.statut;
         // ========================================
         // MODIFIER LE STATUT DE LA COMMANDE
@@ -1129,7 +1131,7 @@ module.exports.updateStatutCommande = async (req, res) => {
             }
 
         }
-            
+
         // ========================================
         // E-MAIL AU CLIENT : FACTURE + COMMANDE PRÊTE AU RETRAIT
         // Uniquement au passage à « confirmée » (pas de renvoi si
@@ -1149,12 +1151,13 @@ module.exports.updateStatutCommande = async (req, res) => {
         // NOTIFICATION TELEGRAM - CHANGEMENT DE STATUT
         if (ancienStatut !== commande.statut) {
             const messageTelegram =
-                `🔔 CHANGEMENT DE STATUT - LANDOLSI TIRES\n\n` +
-                `📦 Commande n° : ${commande.id}\n` +
-                `👤 Client : ${commande.prenom} ${commande.nom}\n` +
-                `🔄 Ancien statut : ${ancienStatut}\n` +
-                `✅ Nouveau statut : ${commande.statut}\n` +
-                `💰 Total : ${Number(commande.total).toFixed(2)} DT`;
+    `🔔 CHANGEMENT DE STATUT - LANDOLSI TIRES\n\n` +
+    `📦 Commande n° : ${commande.id}\n` +
+    `👤 Client : ${commande.prenom} ${commande.nom}\n` +
+    `🔄 Ancien statut : ${ancienStatut}\n` +
+    `✅ Nouveau statut : ${commande.statut}\n` +
+    `💰 Total : ${Number(commande.total).toFixed(2)} DT\n\n` +
+    `🏪 Retrait en magasin : LANDOLSI TIRES, Msaken`;
 
             await envoyerNotificationTelegram(messageTelegram);
         }

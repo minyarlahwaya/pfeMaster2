@@ -15,7 +15,9 @@ import {
     FaHome,
     FaFilePdf,
     FaSearch,
-    FaTimes
+    FaTimes,
+    FaBriefcase,
+    FaIdCard
 } from "react-icons/fa";
 
 import {
@@ -36,8 +38,7 @@ const getProchainStatut = (statut) => {
     const progression = {
         "en attente": "confirmée",
         "confirmée": "en préparation",
-        "en préparation": "expédiée",
-        "expédiée": "livrée"
+        "en préparation": "récupérée"
     };
 
     return progression[statut] || null;
@@ -46,26 +47,27 @@ const getProchainStatut = (statut) => {
 // ========================================
 // CLASSE DU STATUT
 // ========================================
-
 const getStatutClass = (statut) => {
     switch (statut) {
         case "en attente":
             return "status-en-attente";
+
         case "confirmée":
             return "status-confirmee";
+
         case "en préparation":
             return "status-en-preparation";
-        case "expédiée":
-            return "status-expediee";
-        case "livrée":
-            return "status-livree";
+
+        case "récupérée":
+            return "status-recuperee";
+
         case "annulée":
             return "status-annulee";
+
         default:
             return "";
     }
 };
-
 // ========================================
 // FORMAT DATE ET HEURE
 // ========================================
@@ -118,6 +120,10 @@ function AdminCommandes() {
     // Critères de recherche
     const [rechercheClient, setRechercheClient] = useState("");
     const [dateRecherche, setDateRecherche] = useState("");
+    const [statutRecherche, setStatutRecherche] = useState("");
+
+    // Type de client sélectionné
+    const [typeClientActif, setTypeClientActif] = useState("particulier");
 
     const navigate = useNavigate();
 
@@ -137,10 +143,7 @@ function AdminCommandes() {
                 setCommandes([]);
             }
         } catch (error) {
-            console.error(
-                "Erreur récupération commandes :",
-                error
-            );
+            console.error("Erreur récupération commandes :", error);
 
             alert(
                 error.response?.data?.message ||
@@ -156,7 +159,7 @@ function AdminCommandes() {
     }, []);
 
     // ========================================
-    // RECHERCHE PAR CLIENT ET PAR DATE
+    // RECHERCHE PAR CLIENT, DATE ET STATUT
     // ========================================
 
     const commandesFiltrees = commandes.filter((commande) => {
@@ -185,36 +188,53 @@ function AdminCommandes() {
             email.includes(recherche) ||
             telephone.includes(recherche);
 
-        const dateCommande = obtenirDateLocale(
-            commande.createdAt
-        );
+        const dateCommande = obtenirDateLocale(commande.createdAt);
 
         const correspondDate =
             !dateRecherche || dateCommande === dateRecherche;
 
-        return correspondClient && correspondDate;
+        const correspondStatut =
+            !statutRecherche || commande.statut === statutRecherche;
+
+        return correspondClient && correspondDate && correspondStatut;
     });
 
     // ========================================
-    // EFFACER LES FILTRES
+    // SÉPARER LES COMMANDES PAR TYPE DE CLIENT
+    // ========================================
+
+    const commandesParType = commandesFiltrees.filter((commande) => {
+        return commande.user?.typeClient === typeClientActif;
+    });
+
+    // Compteurs par type de client
+    const nombreParticuliers = commandes.filter(
+        (commande) => commande.user?.typeClient === "particulier"
+    ).length;
+
+    const nombreProfessionnels = commandes.filter(
+        (commande) => commande.user?.typeClient === "professionnel"
+    ).length;
+
+    // ========================================
+    // EFFACER TOUS LES FILTRES
     // ========================================
 
     const effacerFiltres = () => {
         setRechercheClient("");
         setDateRecherche("");
+        setStatutRecherche("");
     };
 
     // ========================================
     // MODIFIER LE STATUT
     // ========================================
 
-    const handleStatutChange = async (
-        commandeId,
-        nouveauStatut
-    ) => {
-        // Confirmation : la facture part par e-mail au client
+    const handleStatutChange = async (commandeId, nouveauStatut) => {
         if (nouveauStatut === "confirmée") {
-            const commandeActuelle = commandes.find((c) => c.id === commandeId);
+            const commandeActuelle = commandes.find(
+                (c) => c.id === commandeId
+            );
 
             if (commandeActuelle?.statut !== "confirmée") {
                 const ok = window.confirm(
@@ -225,7 +245,6 @@ function AdminCommandes() {
                 );
 
                 if (!ok) {
-                    // Le menu déroulant revient à l'ancien statut
                     chargerCommandes();
                     return;
                 }
@@ -238,7 +257,6 @@ function AdminCommandes() {
                 nouveauStatut
             );
 
-            // Résultat de l'envoi de la facture par e-mail
             const emailFacture = response.data.emailFacture;
 
             if (emailFacture) {
@@ -265,10 +283,7 @@ function AdminCommandes() {
                 );
             }
         } catch (error) {
-            console.error(
-                "Erreur modification statut :",
-                error
-            );
+            console.error("Erreur modification statut :", error);
 
             alert(
                 error.response?.data?.message ||
@@ -287,10 +302,7 @@ function AdminCommandes() {
         try {
             await downloadFacturePDF(commandeId);
         } catch (error) {
-            console.error(
-                "Erreur téléchargement facture :",
-                error
-            );
+            console.error("Erreur téléchargement facture :", error);
 
             alert(
                 error.response?.data?.message ||
@@ -323,10 +335,7 @@ function AdminCommandes() {
                 alert("Commande supprimée avec succès.");
             }
         } catch (error) {
-            console.error(
-                "Erreur suppression commande :",
-                error
-            );
+            console.error("Erreur suppression commande :", error);
 
             alert(
                 error.response?.data?.message ||
@@ -381,10 +390,10 @@ function AdminCommandes() {
                     </button>
 
                     <div className="commandes-count">
-                        {commandesFiltrees.length}
+                        {commandesParType.length}
                         <span>
                             commande
-                            {commandesFiltrees.length > 1 ? "s" : ""}
+                            {commandesParType.length > 1 ? "s" : ""}
                         </span>
                     </div>
                 </div>
@@ -399,8 +408,8 @@ function AdminCommandes() {
                     <div>
                         <h2>Rechercher une commande</h2>
                         <p>
-                            Recherchez par client, téléphone,
-                            e-mail ou date de commande.
+                            Recherchez par client, téléphone, e-mail,
+                            date ou statut de commande.
                         </p>
                     </div>
                 </div>
@@ -429,7 +438,7 @@ function AdminCommandes() {
                         </div>
                     </div>
 
-                    {/* UNE SEULE DATE */}
+                    {/* RECHERCHE PAR DATE */}
 
                     <div className="commandes-search-field">
                         <label htmlFor="dateRecherche">
@@ -450,6 +459,33 @@ function AdminCommandes() {
                         </div>
                     </div>
 
+                    {/* RECHERCHE PAR STATUT */}
+
+                    <div className="commandes-search-field">
+                        <label htmlFor="statutRecherche">
+                            Statut de commande
+                        </label>
+
+                        <div className="commandes-input-wrapper">
+                            <FaShoppingCart />
+
+                            <select
+                                id="statutRecherche"
+                                value={statutRecherche}
+                                onChange={(e) =>
+                                    setStatutRecherche(e.target.value)
+                                }
+                            >
+                                <option value="">Tous les statuts</option>
+                                <option value="en attente">En attente</option>
+                                <option value="confirmée">Confirmée</option>
+                                <option value="en préparation">En préparation</option>
+                                <option value="récupérée">Récupérée</option>
+                                <option value="annulée">Annulée</option>
+                            </select>
+                        </div>
+                    </div>
+
                     {/* EFFACER */}
 
                     <div className="commandes-search-actions">
@@ -458,7 +494,9 @@ function AdminCommandes() {
                             className="btn-effacer-filtres"
                             onClick={effacerFiltres}
                             disabled={
-                                !rechercheClient && !dateRecherche
+                                !rechercheClient &&
+                                !dateRecherche &&
+                                !statutRecherche
                             }
                         >
                             <FaTimes />
@@ -468,57 +506,112 @@ function AdminCommandes() {
                 </div>
 
                 <p className="commandes-search-result">
-                    {commandesFiltrees.length} résultat
-                    {commandesFiltrees.length > 1 ? "s" : ""}
-                    {" "}sur {commandes.length} commande
-                    {commandes.length > 1 ? "s" : ""}
+                    {commandesParType.length} résultat
+                    {commandesParType.length > 1 ? "s" : ""}
+                    {" "}sur {
+                        typeClientActif === "particulier"
+                            ? nombreParticuliers
+                            : nombreProfessionnels
+                    } commande
+                    {
+                        (
+                            typeClientActif === "particulier"
+                                ? nombreParticuliers
+                                : nombreProfessionnels
+                        ) > 1 ? "s" : ""
+                    }
                 </p>
             </section>
+
+            {/* ONGLETS PARTICULIERS / PROFESSIONNELS */}
+
+            <div className="commandes-type-tabs">
+
+                <button
+                    type="button"
+                    className={`commandes-type-tab ${typeClientActif === "particulier" ? "active" : ""
+                        }`}
+                    onClick={() => setTypeClientActif("particulier")}
+                >
+                    <FaUser />
+                    <span>Particuliers</span>
+                    <strong>{nombreParticuliers}</strong>
+                </button>
+
+                <button
+                    type="button"
+                    className={`commandes-type-tab ${typeClientActif === "professionnel" ? "active" : ""
+                        }`}
+                    onClick={() => setTypeClientActif("professionnel")}
+                >
+                    <FaBriefcase />
+                    <span>Professionnels</span>
+                    <strong>{nombreProfessionnels}</strong>
+                </button>
+
+            </div>
 
             {/* AUCUNE COMMANDE */}
 
             {commandes.length === 0 ? (
+
                 <div className="no-commandes">
                     <FaShoppingCart />
                     <h2>Aucune commande</h2>
-                    <p>
-                        Aucune commande n'a encore été passée.
-                    </p>
+                    <p>Aucune commande n'a encore été passée.</p>
                 </div>
-            ) : commandesFiltrees.length === 0 ? (
 
-                /* AUCUN RÉSULTAT */
+            ) : commandesParType.length === 0 ? (
 
                 <div className="no-commandes">
-                    <FaSearch />
-                    <h2>Aucun résultat</h2>
+                    {typeClientActif === "particulier"
+                        ? <FaUser />
+                        : <FaBriefcase />}
+
+                    <h2>
+                        {rechercheClient || dateRecherche || statutRecherche
+                            ? "Aucun résultat"
+                            : "Aucune commande"}
+                    </h2>
 
                     <p>
-                        Aucune commande ne correspond à vos critères
-                        de recherche.
+                        {rechercheClient || dateRecherche || statutRecherche
+                            ? `Aucune commande des clients ${typeClientActif === "particulier"
+                                ? "particuliers"
+                                : "professionnels"
+                            } ne correspond à vos critères.`
+                            : `Aucune commande n'a été passée par les clients ${typeClientActif === "particulier"
+                                ? "particuliers"
+                                : "professionnels"
+                            }.`}
                     </p>
 
-                    <button
-                        type="button"
-                        className="btn-effacer-filtres"
-                        onClick={effacerFiltres}
-                    >
-                        <FaTimes />
-                        Réinitialiser la recherche
-                    </button>
+                    {(rechercheClient || dateRecherche || statutRecherche) && (
+                        <button
+                            type="button"
+                            className="btn-effacer-filtres"
+                            onClick={effacerFiltres}
+                        >
+                            <FaTimes />
+                            Réinitialiser la recherche
+                        </button>
+                    )}
                 </div>
+
             ) : (
 
                 /* LISTE DES COMMANDES */
 
                 <div className="commandes-list">
-                    {commandesFiltrees.map((commande) => {
+
+                    {commandesParType.map((commande) => {
+
                         const prochainStatut = getProchainStatut(
                             commande.statut
                         );
 
                         const commandeTerminee =
-                            commande.statut === "livrée" ||
+                            commande.statut === "récupérée" ||
                             commande.statut === "annulée";
 
                         return (
@@ -530,24 +623,22 @@ function AdminCommandes() {
                                 {/* EN-TÊTE DE COMMANDE */}
 
                                 <div className="commande-card-header">
+
                                     <div className="commande-title">
                                         <FaShoppingCart />
 
                                         <div>
-                                            <h2>
-                                                Commande #{commande.id}
-                                            </h2>
+                                            <h2>Commande #{commande.id}</h2>
 
                                             <span>
                                                 <FaCalendarAlt />
-                                                {formatDate(
-                                                    commande.createdAt
-                                                )}
+                                                {formatDate(commande.createdAt)}
                                             </span>
                                         </div>
                                     </div>
 
                                     <div className="status-select-wrapper">
+
                                         <select
                                             value={commande.statut}
                                             onChange={(e) =>
@@ -571,14 +662,12 @@ function AdminCommandes() {
                                                 </option>
                                             )}
 
-                                            {(
-                                                commande.statut === "en attente" ||
-                                                commande.statut === "confirmée"
-                                            ) && (
-                                                <option value="annulée">
-                                                    annulée
-                                                </option>
-                                            )}
+                                            {(commande.statut === "en attente" ||
+                                                commande.statut === "confirmée") && (
+                                                    <option value="annulée">
+                                                        annulée
+                                                    </option>
+                                                )}
                                         </select>
 
                                         <FaChevronDown />
@@ -588,6 +677,7 @@ function AdminCommandes() {
                                 {/* INFORMATIONS CLIENT */}
 
                                 <div className="commande-client-section">
+
                                     <h3>
                                         <FaUser />
                                         Informations client
@@ -643,31 +733,59 @@ function AdminCommandes() {
                                                 </strong>
                                             </div>
                                         </div>
+
+                                        {/* INFORMATIONS PROFESSIONNELLES */}
+
+                                        {typeClientActif === "professionnel" && (
+                                            <>
+                                                <div className="client-info">
+                                                    <FaIdCard />
+                                                    <div>
+                                                        <span>Numéro TVA</span>
+                                                        <strong>
+                                                            {commande.user?.numeroTVA || "-"}
+                                                        </strong>
+                                                    </div>
+                                                </div>
+
+                                                <div className="client-info">
+                                                    <FaBriefcase />
+                                                    <div>
+                                                        <span>Secteur d'activité</span>
+                                                        <strong>
+                                                            {commande.user?.secteur || "-"}
+                                                        </strong>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+
                                     </div>
                                 </div>
 
                                 {/* PRODUITS COMMANDÉS */}
 
                                 <div className="commande-products-section">
+
                                     <h3>
                                         <FaBoxOpen />
                                         Produits commandés
                                     </h3>
 
                                     <div className="products-list">
+
                                         {commande.items?.map((item) => (
+
                                             <div
                                                 className="commande-product"
                                                 key={item.id}
                                             >
+
                                                 <div className="product-image">
                                                     {item.pneu?.image ? (
                                                         <img
                                                             src={`${API_URL}/uploadPneu/${item.pneu.image}`}
-                                                            alt={
-                                                                item.pneu.modele ||
-                                                                "Pneu"
-                                                            }
+                                                            alt={item.pneu.modele || "Pneu"}
                                                         />
                                                     ) : (
                                                         <FaBoxOpen />
@@ -697,52 +815,44 @@ function AdminCommandes() {
 
                                                 <div className="product-quantity">
                                                     <span>Quantité</span>
-                                                    <strong>
-                                                        ×{item.quantite}
-                                                    </strong>
+                                                    <strong>×{item.quantite}</strong>
                                                 </div>
 
                                                 <div className="product-price">
-                                                    {Number(
-                                                        item.pourcentagePromotion
-                                                    ) > 0 ? (
+
+                                                    {Number(item.pourcentagePromotion) > 0 ? (
                                                         <>
                                                             <span className="old-price">
-                                                                {Number(
-                                                                    item.prixOriginal
-                                                                ).toFixed(2)}{" "}
-                                                                DT
+                                                                {Number(item.prixOriginal).toFixed(2)} DT
                                                             </span>
 
                                                             <strong className="promo-price">
-                                                                {Number(
-                                                                    item.prix
-                                                                ).toFixed(2)}{" "}
-                                                                DT
+                                                                {Number(item.prix).toFixed(2)} DT
                                                             </strong>
 
                                                             <span className="promo-badge">
-                                                                -
-                                                                {item.pourcentagePromotion}%
+                                                                -{item.pourcentagePromotion}%
                                                             </span>
                                                         </>
                                                     ) : (
                                                         <strong>
-                                                            {Number(
-                                                                item.prix
-                                                            ).toFixed(2)}{" "}
-                                                            DT
+                                                            {Number(item.prix).toFixed(2)} DT
                                                         </strong>
                                                     )}
+
                                                 </div>
+
                                             </div>
+
                                         ))}
+
                                     </div>
                                 </div>
 
                                 {/* TOTAL ET ACTIONS */}
 
                                 <div className="commande-card-footer">
+
                                     <div className="commande-total">
                                         <span>Total commande :</span>
                                         <strong>
@@ -751,15 +861,14 @@ function AdminCommandes() {
                                     </div>
 
                                     <div className="commande-footer-actions">
+
                                         {commande.facture && (
                                             <button
                                                 type="button"
                                                 className="facture-commande-btn"
                                                 title={`Télécharger ${commande.facture.numeroFacture}`}
                                                 onClick={() =>
-                                                    handleDownloadFacture(
-                                                        commande.id
-                                                    )
+                                                    handleDownloadFacture(commande.id)
                                                 }
                                             >
                                                 <FaFilePdf />
@@ -776,16 +885,19 @@ function AdminCommandes() {
                                             <FaTrash />
                                             <span>Supprimer</span>
                                         </button>
+
                                     </div>
                                 </div>
+
                             </div>
                         );
                     })}
+
                 </div>
             )}
+
         </div>
     );
 }
 
 export default AdminCommandes;
-

@@ -96,9 +96,6 @@ module.exports.signup = async (req, res) => {
             codePostal,
             pays,
             typeClient,
-            raisonSociale,
-            activite,
-            identifiantEntreprise,
             numeroTVA,
             secteur
         } = req.body;
@@ -125,9 +122,7 @@ module.exports.signup = async (req, res) => {
             typeClient,
 
             // Informations professionnelles
-            raisonSociale,
-            activite,
-            identifiantEntreprise,
+           
             numeroTVA,
             secteur
 
@@ -721,13 +716,14 @@ module.exports.logout = (req, res) => {
 // Récupérer le profil de l'utilisateur connecté
 // =====================================
 
+
+// =====================================
+// Récupérer le profil de l'utilisateur connecté
+// =====================================
+
 module.exports.getProfile = async (req, res) => {
-
     try {
-
-        // Récupérer l'utilisateur grâce à l'id du token JWT
         const user = await User.findByPk(req.userId, {
-
             attributes: [
                 "id",
                 "nom",
@@ -739,58 +735,35 @@ module.exports.getProfile = async (req, res) => {
                 "codePostal",
                 "pays",
                 "typeClient",
-                "raisonSociale",
-                "activite",
-                "identifiantEntreprise",
                 "numeroTVA",
                 "secteur",
                 "role",
                 "mfaEnabled"
             ]
-
         });
 
-
-
-        // Si utilisateur non trouvé
         if (!user) {
-
             return res.status(404).json({
-
-                message: "Utilisateur introuvable"
-
+                success: false,
+                message: "Utilisateur introuvable."
             });
-
         }
 
-
-
-        // Retourner les informations
-        res.status(200).json({
-
+        return res.status(200).json({
             success: true,
-
-            user: user
-
+            user
         });
-
-
 
     } catch (error) {
+        console.error("Erreur récupération profil :", error);
 
-        console.log(error);
-
-        res.status(500).json({
-
+        return res.status(500).json({
             success: false,
-
-            message: "Erreur serveur"
-
+            message: "Erreur serveur."
         });
-
     }
-
 };
+
 
 
 
@@ -814,9 +787,7 @@ module.exports.updateProfile = async (req, res) => {
             ville,
             codePostal,
             pays,
-            raisonSociale,
-            activite,
-            identifiantEntreprise,
+            
             numeroTVA,
             secteur
         } = req.body;
@@ -858,9 +829,9 @@ module.exports.updateProfile = async (req, res) => {
         // Informations professionnelles
         // ==============================
 
-        user.raisonSociale = raisonSociale;
-        user.activite = activite;
-        user.identifiantEntreprise = identifiantEntreprise;
+        //user.raisonSociale = raisonSociale;
+        //user.activite = activite;
+        //user.identifiantEntreprise = identifiantEntreprise;
         user.numeroTVA = numeroTVA;
         user.secteur = secteur;
 
@@ -904,12 +875,7 @@ module.exports.updateProfile = async (req, res) => {
 
                 typeClient: user.typeClient,
 
-                raisonSociale: user.raisonSociale,
-
-                activite: user.activite,
-
-                identifiantEntreprise:
-                    user.identifiantEntreprise,
+               
 
                 numeroTVA: user.numeroTVA,
 

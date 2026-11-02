@@ -314,3 +314,41 @@
         flex-direction: column;
     }
 }
+
+.register-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.register-buttons .submit-btn,
+.register-buttons .btn-cancel {
+    flex: 1;
+    margin-top: 0;
+    padding: 14px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.register-buttons .btn-cancel {
+    background: #6c757d;
+    color: white;
+    border: none;
+    transition: background 0.2s ease;
+}
+
+.register-buttons .btn-cancel:hover {
+    background: #565e64;
+}
+
+.register-buttons button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .register-buttons {
+        flex-direction: column;
+    }
+  }
