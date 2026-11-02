@@ -337,6 +337,64 @@ const getAllAvis = async (req, res) => {
     }
 };
 
+
+
+
+
+
+
+
+
+
+ // ========================================
+ // Récupérer les avis publics
+ // ========================================
+
+const getPublicAvis = async (req, res) => {
+    try {
+        const avis = await Avis.findAll({
+            include: [
+                {
+                    model: User,
+                    as: "user",
+                    attributes: ["id", "nom", "prenom"]
+                },
+                {
+                    model: Pneu,
+                    as: "pneu"
+                },
+                {
+                    model: ReponseAvis,
+                    as: "reponses",
+                    include: [
+                        {
+                            model: User,
+                            as: "auteur",
+                            attributes: ["id", "nom", "prenom", "role"]
+                        }
+                    ]
+                }
+            ],
+            order: [["createdAt", "DESC"]],
+            distinct: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            count: avis.length,
+            avis
+        });
+
+    } catch (error) {
+        console.error("Erreur récupération avis publics :", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Impossible de récupérer les avis."
+        });
+    }
+};
+
 // ========================================
 // Supprimer un avis
 // Le client supprime son propre avis.
@@ -623,6 +681,7 @@ module.exports = {
     createAvis,
     getAvisByCommande,
     getAllAvis,
+     getPublicAvis,
     deleteAvis,
     getAvisByPneu,
      modifierAvis

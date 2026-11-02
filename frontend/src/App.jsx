@@ -39,7 +39,6 @@ import CommandeDetailss from "./components/CommandesPanier/CommandeDetailss";
 import Promotions from "./components/pneus/Promotions";
 import MesReclamations from "./components/Reclamation/MesReclamations";
 
-
 // ========================================
 // ADMIN
 // ========================================
@@ -66,7 +65,6 @@ import GestionCompatibilites from "./components/admin/GestionCompatibilites";
 
 import Chatbot from "./components/chatbot/Chatbot";
 
-
 // ========================================
 // CONTENU DE L'APPLICATION
 // ========================================
@@ -78,280 +76,126 @@ function AppContent() {
         setNotification
     } = useCart();
 
-
-    // Récupérer l'URL actuelle
-
     const location = useLocation();
 
-
     // Vérifier si on se trouve dans l'espace admin
-
-    const isAdmin =
-        location.pathname.startsWith("/admin");
-
+    const isAdmin = location.pathname.startsWith("/admin");
 
     return (
-
         <>
 
-            {/* ========================================
-                NAVBAR CLIENT
-                Elle ne s'affiche PAS dans l'espace admin
-            ======================================== */}
-
+            {/* NAVBAR CLIENT */}
             {!isAdmin && <Navbar />}
 
-
-            {/* ========================================
-                NOTIFICATION
-            ======================================== */}
-
+            {/* NOTIFICATION */}
             <Notification
                 notification={notification}
                 onClose={() => setNotification(null)}
             />
 
-
-            {/* ========================================
-                CHATBOT CLIENT
-                Il ne s'affiche PAS dans l'espace admin
-            ======================================== */}
-
+            {/* CHATBOT CLIENT */}
             {!isAdmin && <Chatbot />}
 
-
-            {/* ========================================
-                ROUTES
-            ======================================== */}
-
+            {/* ROUTES */}
             <Routes>
 
+                {/* PAGES CLIENT */}
 
-                {/* ========================================
-                    PAGES CLIENT
-                ======================================== */}
+                <Route path="/" element={<Home />} />
 
-                <Route
-                    path="/"
-                    element={<Home />}
-                />
+                <Route path="/login" element={<Login />} />
 
-                <Route
-                    path="/login"
-                    element={<Login />}
-                />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
-                <Route
-                    path="/forgot-password"
-                    element={<ForgotPassword />}
-                />
+                <Route path="/verify-reset-code" element={<VerifyResetCode />} />
 
-                <Route
-                    path="/verify-reset-code"
-                    element={<VerifyResetCode />}
-                />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-                <Route
-                    path="/reset-password"
-                    element={<ResetPassword />}
-                />
+                <Route path="/register" element={<Register />} />
 
-                <Route
-                    path="/register"
-                    element={<Register />}
-                />
+                <Route path="/profile" element={<Profile />} />
 
-                <Route
-                    path="/profile"
-                    element={<Profile />}
-                />
+                <Route path="/pneus" element={<Pneus />} />
 
-                <Route
-                    path="/pneus"
-                    element={<Pneus />}
-                />
+                <Route path="/promotions" element={<Promotions />} />
 
-                <Route
-                    path="/promotions"
-                    element={<Promotions />}
-                />
-                <Route
-                    path="/mes-reclamations"
-                    element={<MesReclamations />}
-                />
+                <Route path="/mes-reclamations" element={<MesReclamations />} />
 
+                {/* RECHERCHE */}
 
-                {/* ========================================
-                    RECHERCHE
-                ======================================== */}
+                <Route path="/recherche-pneus" element={<SearchResults />} />
 
-                <Route
-                    path="/recherche-pneus"
-                    element={<SearchResults />}
-                />
+                <Route path="/pneu/:id" element={<PneuDetails />} />
 
-                <Route
-                    path="/pneu/:id"
-                    element={<PneuDetails />}
-                />
+                <Route path="/recherche-pneus-marque" element={<SearchResultsMarque />} />
 
-                <Route
-                    path="/recherche-pneus-marque"
-                    element={<SearchResultsMarque />}
-                />
+                <Route path="/recherche-pneus-saison" element={<SearchResultsSaison />} />
 
-                <Route
-                    path="/recherche-pneus-saison"
-                    element={<SearchResultsSaison />}
-                />
+                <Route path="/recherche/immatriculation" element={<SearchResultsImmatriculation />} />
 
-                <Route
-                    path="/recherche/immatriculation"
-                    element={<SearchResultsImmatriculation />}
-                />
+                <Route path="/recherche/photo" element={<SearchResultsPhoto />} />
 
-                <Route
-                    path="/recherche/photo"
-                    element={<SearchResultsPhoto />}
-                />
+                {/* PANIER ET COMMANDES */}
 
+                <Route path="/panier" element={<Cart />} />
 
-                {/* ========================================
-                    PANIER ET COMMANDES
-                ======================================== */}
+                <Route path="/commande/:id" element={<CommandeDetails />} />
 
-                <Route
-                    path="/panier"
-                    element={<Cart />}
-                />
+                <Route path="/mes-commandes" element={<MesCommandes />} />
 
-                <Route
-                    path="/commande/:id"
-                    element={<CommandeDetails />}
-                />
+                {/* ESPACE ADMIN */}
 
-                <Route
-                    path="/mes-commandes"
-                    element={<MesCommandes />}
-                />
+                <Route path="/admin" element={<AdminDashboard />} />
 
-                <Route
-                    path="/commande/:id"
-                    element={<CommandeDetailss />}
-                />
+                <Route path="/admin/pneus" element={<AdminPneus />} />
 
+                <Route path="/admin/marques" element={<GestionMarques />} />
 
-                {/* ========================================
-                    ESPACE ADMIN
-                ======================================== */}
+                <Route path="/admin/pneus/ajouter" element={<AjouterPneu />} />
 
-                <Route
-                    path="/admin"
-                    element={<AdminDashboard />}
-                />
+                <Route path="/admin/pneus/modifier/:id" element={<ModifierPneu />} />
 
-                <Route
-                    path="/admin/pneus"
-                    element={<AdminPneus />}
-                />
+                <Route path="/admin/promotions" element={<AdminPromotions />} />
 
-                <Route
-                    path="/admin/marques"
-                    element={<GestionMarques />}
-                />
+                <Route path="/admin/promotions/ajouter" element={<AjouterPromotion />} />
 
-                <Route
-                    path="/admin/pneus/ajouter"
-                    element={<AjouterPneu />}
-                />
+                <Route path="/admin/promotions/modifier/:id" element={<ModifierPromotion />} />
 
-                <Route
-                    path="/admin/pneus/modifier/:id"
-                    element={<ModifierPneu />}
-                />
+                <Route path="/admin/commandes" element={<AdminCommandes />} />
 
-                <Route
-                    path="/admin/promotions"
-                    element={<AdminPromotions />}
-                />
+                <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
 
-                <Route
-                    path="/admin/promotions/ajouter"
-                    element={<AjouterPromotion />}
-                />
+                <Route path="/admin/securite" element={<AdminSecurite />} />
 
-                <Route
-                    path="/admin/promotions/modifier/:id"
-                    element={<ModifierPromotion />}
-                />
+                <Route path="/admin/assistant-ia" element={<AdminAssistantIA />} />
 
+                <Route path="/admin/reclamations" element={<GestionReclamations />} />
 
-                <Route
-                    path="/admin/commandes"
-                    element={<AdminCommandes />}
-                />
+                <Route path="/admin/avis" element={<GestionAvis />} />
 
-                <Route
-                    path="/admin/utilisateurs"
-                    element={<AdminUtilisateurs />}
-                />
-
-                <Route
-                    path="/admin/securite"
-                    element={<AdminSecurite />}
-                />
-
-                <Route
-                    path="/admin/assistant-ia"
-                    element={<AdminAssistantIA />}
-                />
-
-                <Route
-                    path="/admin/reclamations"
-                    element={<GestionReclamations />}
-                />
-
-                <Route
-                    path="/admin/avis"
-                    element={<GestionAvis />}
-                />
-
-                <Route
-                    path="/admin/compatibilites"
-                    element={<GestionCompatibilites />}
-                />
+                <Route path="/admin/compatibilites" element={<GestionCompatibilites />} />
 
             </Routes>
 
+            {/* FOOTER CLIENT UNIQUEMENT */}
+            {!isAdmin && <Footer />}
+
         </>
-
     );
-
 }
-
 
 // ========================================
 // APP PRINCIPALE
 // ========================================
 
 function App() {
-
     return (
-
         <CartProvider>
-
             <BrowserRouter>
-
                 <AppContent />
-
             </BrowserRouter>
-
         </CartProvider>
-
     );
-
 }
 
-
 export default App;
-

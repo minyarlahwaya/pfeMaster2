@@ -25,6 +25,13 @@ router.get(
     avisController.getAvisByPneu
 );
 
+
+
+// Avis visibles sur le site public
+router.get(
+    "/public",
+    avisController.getPublicAvis
+);
 // ========================================
 // Récupérer tous les avis : administrateur
 // ========================================

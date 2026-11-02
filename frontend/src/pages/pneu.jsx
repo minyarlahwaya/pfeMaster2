@@ -10,7 +10,7 @@ function Pneus() {
 
             <CataloguePneus />
 
-            <Footer />
+            
 
         </>
 

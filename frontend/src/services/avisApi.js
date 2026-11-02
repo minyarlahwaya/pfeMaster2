@@ -12,11 +12,9 @@ export const createAvis = async (avisData) => {
 };
 
 // Récupérer tous les avis
+// Récupérer les avis publics
 export const getAllAvis = async () => {
-    const response = await axios.get(apiURL, {
-        withCredentials: true
-    });
-
+    const response = await axios.get(`${apiURL}/public`);
     return response.data;
 };
 
