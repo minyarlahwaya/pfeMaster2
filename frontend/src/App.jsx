@@ -56,6 +56,8 @@ import GestionMarques from "./components/admin/GestionMarques";
 import GestionReclamations from "./components/admin/GestionReclamations";
 import AdminSecurite from "./components/admin/AdminSecurite";
 import AdminAssistantIA from "./components/admin/AdminAssistantIA";
+import GestionAvis from "./components/admin/GestionAvis";
+import GestionCompatibilites from "./components/admin/GestionCompatibilites";
 
 // ========================================
 // CHATBOT
@@ -306,6 +308,16 @@ function AppContent() {
                 <Route
                     path="/admin/reclamations"
                     element={<GestionReclamations />}
+                />
+
+                <Route
+                    path="/admin/avis"
+                    element={<GestionAvis />}
+                />
+
+                <Route
+                    path="/admin/compatibilites"
+                    element={<GestionCompatibilites />}
                 />
 
             </Routes>

@@ -1,3 +1,4 @@
+
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/db");
 
@@ -45,6 +46,35 @@ const Commande = sequelize.define(
             allowNull: false
         },
 
+        // Montant après les promotions sur les pneus
+        sousTotal: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
+        },
+
+        // Pourcentage de remise selon le type de client
+        remisePourcentage: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
+        },
+
+        // Montant économisé
+        remiseMontant: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            defaultValue: 0
+        },
+
+        // aucune, particulier ou professionnel
+        typeRemise: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "aucune"
+        },
+
+        // Montant final après remise
         total: {
             type: DataTypes.FLOAT,
             allowNull: false

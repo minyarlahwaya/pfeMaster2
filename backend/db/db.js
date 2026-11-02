@@ -1,7 +1,21 @@
 const { Sequelize } = require("sequelize");
+const fs = require("fs");
 const config = require("../config");
 
 const { db } = config;
+
+// Certificat CA facultatif : utilisé uniquement si son chemin est configuré
+const sslOptions = db.ssl
+  ? {
+      require: true,
+      rejectUnauthorized: db.sslRejectUnauthorized,
+      ...(process.env.DB_SSL_CA_PATH
+        ? {
+            ca: fs.readFileSync(process.env.DB_SSL_CA_PATH, "utf8")
+          }
+        : {})
+    }
+  : {};
 
 const sequelize = new Sequelize(
   db.name,
@@ -18,9 +32,8 @@ const sequelize = new Sequelize(
       acquire: 30000,
       idle: 10000
     },
-    // Base managée (Supabase, RDS...) : connexion TLS
     dialectOptions: db.ssl
-      ? { ssl: { require: true, rejectUnauthorized: db.sslRejectUnauthorized } }
+      ? { ssl: sslOptions }
       : {}
   }
 );

@@ -1,0 +1,576 @@
+
+/* ==========================================
+   LANDOLSI TIRES - GESTION COMPATIBILITES
+========================================== */
+
+.gc-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 28px;
+    color: #292929;
+    background: #f7f7f8;
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   EN-TETE
+========================================== */
+
+.gc-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.gc-heading h2 {
+    margin: 0 0 8px;
+    color: #242424;
+    font-size: 27px;
+    font-weight: 750;
+}
+
+.gc-heading p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.gc-count {
+    min-width: 145px;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.gc-count span {
+    color: #c92127;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.gc-count small {
+    color: #777;
+    font-size: 12px;
+}
+
+/* ==========================================
+   CARTES
+========================================== */
+
+.gc-card {
+    width: 100%;
+    margin-bottom: 22px;
+    background: #fff;
+    border: 1px solid #e9e9e9;
+    border-radius: 12px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.045);
+    overflow: hidden;
+}
+
+.gc-card-header {
+    min-height: 70px;
+    padding: 17px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    background: #fff;
+    border-bottom: 1px solid #ededed;
+}
+
+.gc-card-header h3 {
+    margin: 0 0 5px;
+    color: #292929;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.gc-card-header p {
+    margin: 0;
+    color: #888;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.gc-card-body {
+    padding: 22px;
+}
+
+/* ==========================================
+   BADGE REGCHECK
+========================================== */
+
+.gc-api-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border-radius: 30px;
+    background: #fff0f0;
+    border: 1px solid #f4d1d2;
+    color: #bd2026;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* ==========================================
+   RECHERCHE ET CHAMPS
+========================================== */
+
+.gc-search-form {
+    padding: 22px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.gc-field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.gc-field label {
+    color: #444;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.gc-field input,
+.gc-field select {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 13px;
+    border: 1px solid #dedede;
+    border-radius: 7px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.gc-field input:focus,
+.gc-field select:focus {
+    border-color: #c92127;
+    box-shadow: 0 0 0 3px rgba(201, 33, 39, 0.09);
+}
+
+.gc-field input::placeholder {
+    color: #aaa;
+}
+
+/* ==========================================
+   BOUTONS
+========================================== */
+
+.gc-btn {
+    min-height: 46px;
+    padding: 11px 21px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+}
+
+.gc-btn-primary {
+    background: #c92127;
+    color: #fff;
+}
+
+.gc-btn-primary:hover {
+    background: #a7191f;
+    box-shadow: 0 4px 10px rgba(201, 33, 39, 0.18);
+    transform: translateY(-1px);
+}
+
+.gc-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.gc-btn-delete {
+    padding: 8px 13px;
+    background: #fff;
+    color: #c92127;
+    border: 1px solid #c92127;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gc-btn-delete:hover {
+    background: #c92127;
+    color: #fff;
+}
+
+.gc-btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   INFORMATIONS DU VEHICULE
+========================================== */
+
+.gc-vehicle-details {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 25px;
+    align-items: center;
+}
+
+.gc-vehicle-image {
+    width: 100%;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7f7f7;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.gc-vehicle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.gc-no-image {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 13px;
+    text-align: center;
+}
+
+.gc-vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.gc-info-item {
+    min-height: 75px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    background: #fafafa;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.gc-info-item span {
+    color: #888;
+    font-size: 12px;
+}
+
+.gc-info-item strong {
+    color: #303030;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   FORMULAIRE AJOUT
+========================================== */
+
+.gc-add-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.gc-add-form .gc-field {
+    flex: 1;
+}
+
+.gc-hint {
+    margin: 14px 0 0;
+    color: #888;
+    font-size: 13px;
+}
+
+/* ==========================================
+   TABLEAU
+========================================== */
+
+.gc-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.gc-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.gc-table thead th {
+    padding: 15px 14px;
+    background: #f7f7f7;
+    color: #454545;
+    border-bottom: 2px solid #e8e8e8;
+    font-size: 12px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.gc-table tbody td {
+    padding: 15px 14px;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.gc-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.gc-table tbody tr:hover {
+    background: #fff8f8;
+}
+
+.gc-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.gc-product-name {
+    color: #292929 !important;
+    font-weight: 700;
+}
+
+.gc-season {
+    display: inline-block;
+    padding: 5px 10px;
+    color: #a51e23;
+    background: #fff0f0;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ==========================================
+   MESSAGES
+========================================== */
+
+.gc-alert {
+    margin-bottom: 18px;
+    padding: 13px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.gc-alert button {
+    padding: 0 4px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.gc-alert-success {
+    color: #176b3a;
+    background: #eaf7ef;
+    border: 1px solid #ccebd7;
+}
+
+.gc-alert-success button {
+    color: #176b3a;
+}
+
+.gc-alert-error {
+    color: #a51e23;
+    background: #fff0f0;
+    border: 1px solid #f2d0d0;
+}
+
+.gc-alert-error button {
+    color: #a51e23;
+}
+
+/* ==========================================
+   ETAT VIDE
+========================================== */
+
+.gc-empty {
+    padding: 45px 20px;
+    margin-bottom: 22px;
+    text-align: center;
+    background: #fff;
+    border: 1px dashed #ddd;
+    border-radius: 10px;
+}
+
+.gc-empty h3,
+.gc-empty h4 {
+    margin: 0 0 9px;
+    color: #333;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.gc-empty p {
+    margin: 0;
+    color: #888;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.gc-empty-small {
+    padding: 30px 15px;
+    margin: 0;
+    background: #fafafa;
+}
+
+/* ==========================================
+   CHARGEMENT
+========================================== */
+
+.gc-loading {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    color: #777;
+}
+
+.gc-spinner {
+    width: 38px;
+    height: 38px;
+    border: 4px solid #eee;
+    border-top-color: #c92127;
+    border-radius: 50%;
+    animation: gc-spin 0.8s linear infinite;
+}
+
+@keyframes gc-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 992px) {
+
+    .gc-page {
+        padding: 22px;
+    }
+
+    .gc-vehicle-details {
+        grid-template-columns: 1fr;
+    }
+
+    .gc-vehicle-image {
+        max-width: 350px;
+        margin: auto;
+    }
+
+    .gc-vehicle-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .gc-page {
+        padding: 14px;
+    }
+
+    .gc-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .gc-heading h2 {
+        font-size: 22px;
+    }
+
+    .gc-count {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .gc-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .gc-card-body {
+        padding: 16px;
+    }
+
+    .gc-search-form,
+    .gc-add-form {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+    }
+
+    .gc-add-form {
+        padding: 0;
+    }
+
+    .gc-search-form .gc-btn,
+    .gc-add-form .gc-btn {
+        width: 100%;
+    }
+
+    .gc-vehicle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gc-table {
+        min-width: 650px;
+    }
+
+    .gc-api-badge {
+        align-self: flex-start;
+    }
+
+}

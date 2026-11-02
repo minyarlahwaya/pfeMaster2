@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +7,9 @@ import {
     FaHome,
     FaUserCheck,
     FaUserTimes,
-    FaShieldAlt
+    FaShieldAlt,
+    FaSearch,
+    FaTimes
 } from "react-icons/fa";
 
 import {
@@ -25,6 +28,9 @@ function AdminUtilisateurs() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    // Recherche
+    const [searchTerm, setSearchTerm] = useState("");
+
     const navigate = useNavigate();
 
 
@@ -32,47 +38,89 @@ function AdminUtilisateurs() {
     // RÉCUPÉRER LES UTILISATEURS
     // ========================================
 
-    useEffect(() => {
+    const chargerUtilisateurs = async () => {
 
-        const chargerUtilisateurs = async () => {
+        try {
 
-            try {
+            const response = await getAllUsers();
 
-                const response = await getAllUsers();
+            console.log(
+                "Utilisateurs récupérés :",
+                response.data
+            );
 
-                console.log(
-                    "✅ Utilisateurs récupérés :",
-                    response.data
-                );
-
-                if (response.data.success) {
-
-                    setUsers(response.data.users);
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "❌ Erreur récupération utilisateurs :",
-                    error
-                );
-
-                setError(
-                    "Impossible de récupérer les utilisateurs."
-                );
-
-            } finally {
-
-                setLoading(false);
-
+            if (response.data.success) {
+                setUsers(response.data.users);
             }
 
-        };
+        } catch (error) {
+
+            console.error(
+                "Erreur récupération utilisateurs :",
+                error
+            );
+
+            setError(
+                "Impossible de récupérer les utilisateurs."
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+
+    useEffect(() => {
 
         chargerUtilisateurs();
 
     }, []);
+
+
+    // ========================================
+    // RECHERCHE DES UTILISATEURS
+    // ========================================
+
+    const normaliserTexte = (texte) => {
+
+        return String(texte || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+    };
+
+
+    const utilisateursFiltres = users.filter((user) => {
+
+        const recherche = normaliserTexte(searchTerm);
+
+        if (!recherche) {
+            return true;
+        }
+
+        const informationsUtilisateur = [
+
+            user.id,
+            user.nom,
+            user.prenom,
+            user.email,
+            user.telephone,
+            user.ville,
+            user.typeClient,
+            user.role
+
+        ];
+
+        return informationsUtilisateur.some((information) =>
+            normaliserTexte(information).includes(recherche)
+        );
+
+    });
 
 
     // ========================================
@@ -85,13 +133,10 @@ function AdminUtilisateurs() {
 
             await toggleUserStatus(id);
 
-            // Recharger la liste
             const response = await getAllUsers();
 
             if (response.data.success) {
-
                 setUsers(response.data.users);
-
             }
 
             alert("Statut de l'utilisateur modifié avec succès.");
@@ -99,7 +144,7 @@ function AdminUtilisateurs() {
         } catch (error) {
 
             console.error(
-                "❌ Erreur modification statut :",
+                "Erreur modification statut :",
                 error
             );
 
@@ -115,7 +160,6 @@ function AdminUtilisateurs() {
 
     // ========================================
     // RÉINITIALISER LA DOUBLE AUTHENTIFICATION
-    // (client ayant perdu son téléphone et ses codes de secours)
     // ========================================
 
     const handleResetMfa = async (id) => {
@@ -146,7 +190,7 @@ function AdminUtilisateurs() {
         } catch (error) {
 
             console.error(
-                "❌ Erreur réinitialisation MFA :",
+                "Erreur réinitialisation MFA :",
                 error
             );
 
@@ -178,7 +222,6 @@ function AdminUtilisateurs() {
 
             await deleteUser(id);
 
-            // Supprimer directement de l'affichage
             setUsers((usersActuels) =>
                 usersActuels.filter(
                     (user) => user.id !== id
@@ -190,7 +233,7 @@ function AdminUtilisateurs() {
         } catch (error) {
 
             console.error(
-                "❌ Erreur suppression utilisateur :",
+                "Erreur suppression utilisateur :",
                 error
             );
 
@@ -211,15 +254,11 @@ function AdminUtilisateurs() {
     if (loading) {
 
         return (
-
             <div className="admin-utilisateurs-page">
-
                 <div className="admin-utilisateurs-loading">
                     Chargement des utilisateurs...
                 </div>
-
             </div>
-
         );
 
     }
@@ -232,15 +271,11 @@ function AdminUtilisateurs() {
     if (error) {
 
         return (
-
             <div className="admin-utilisateurs-page">
-
                 <div className="admin-utilisateurs-error">
                     {error}
                 </div>
-
             </div>
-
         );
 
     }
@@ -255,9 +290,7 @@ function AdminUtilisateurs() {
         <div className="admin-utilisateurs-page">
 
 
-            {/* ========================================
-                HEADER
-            ======================================== */}
+            {/* HEADER */}
 
             <div className="admin-utilisateurs-header">
 
@@ -273,10 +306,6 @@ function AdminUtilisateurs() {
 
                 </div>
 
-
-                {/* ========================================
-                    BOUTON DASHBOARD
-                ======================================== */}
 
                 <div className="admin-utilisateurs-header-actions">
 
@@ -299,9 +328,7 @@ function AdminUtilisateurs() {
             </div>
 
 
-            {/* ========================================
-                INFORMATIONS
-            ======================================== */}
+            {/* INFORMATIONS */}
 
             <div className="utilisateurs-info">
 
@@ -316,22 +343,62 @@ function AdminUtilisateurs() {
             </div>
 
 
-            {/* ========================================
-                GRILLE DES UTILISATEURS
-            ======================================== */}
+            {/* BARRE DE RECHERCHE */}
+
+            <div className="utilisateurs-search-container">
+
+                <div className="utilisateurs-search-box">
+
+                    <FaSearch className="search-icon" />
+
+                    <input
+                        type="text"
+                        placeholder="Rechercher par nom, prénom, email, téléphone, ville..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+
+                    {searchTerm && (
+
+                        <button
+                            type="button"
+                            className="clear-search"
+                            title="Effacer la recherche"
+                            onClick={() => setSearchTerm("")}
+                        >
+                            <FaTimes />
+                        </button>
+
+                    )}
+
+                </div>
+
+                <span className="search-result-count">
+                    {utilisateursFiltres.length} résultat(s)
+                </span>
+
+            </div>
+
+
+            {/* GRILLE DES UTILISATEURS */}
 
             <div className="admin-utilisateurs-grid">
 
 
-                {users.length === 0 ? (
+                {utilisateursFiltres.length === 0 ? (
 
                     <div className="aucun-utilisateur">
-                        Aucun utilisateur trouvé.
+
+                        {searchTerm
+                            ? "Aucun client ne correspond à votre recherche."
+                            : "Aucun utilisateur trouvé."
+                        }
+
                     </div>
 
                 ) : (
 
-                    users.map((user) => (
+                    utilisateursFiltres.map((user) => (
 
                         <div
                             className="admin-utilisateur-card"
@@ -339,9 +406,7 @@ function AdminUtilisateurs() {
                         >
 
 
-                            {/* ========================================
-                                EN-TÊTE CARTE
-                            ======================================== */}
+                            {/* EN-TÊTE CARTE */}
 
                             <div className="admin-utilisateur-card-header">
 
@@ -355,10 +420,10 @@ function AdminUtilisateurs() {
 
                                 <div className="utilisateur-identite">
 
-                                    <h3
-                                        title={`${user.prenom} ${user.nom}`}
-                                    >
+                                    <h3 title={`${user.prenom} ${user.nom}`}>
+
                                         {user.prenom} {user.nom}
+
                                     </h3>
 
                                     <span>
@@ -370,14 +435,10 @@ function AdminUtilisateurs() {
                             </div>
 
 
-                            {/* ========================================
-                                INFORMATIONS
-                            ======================================== */}
+                            {/* INFORMATIONS */}
 
                             <div className="admin-utilisateur-details">
 
-
-                                {/* EMAIL */}
 
                                 <div className="utilisateur-info-ligne">
 
@@ -392,8 +453,6 @@ function AdminUtilisateurs() {
                                 </div>
 
 
-                                {/* TÉLÉPHONE */}
-
                                 <div className="utilisateur-info-ligne">
 
                                     <span>
@@ -406,8 +465,6 @@ function AdminUtilisateurs() {
 
                                 </div>
 
-
-                                {/* TYPE */}
 
                                 <div className="utilisateur-info-ligne">
 
@@ -426,8 +483,6 @@ function AdminUtilisateurs() {
                                 </div>
 
 
-                                {/* VILLE */}
-
                                 <div className="utilisateur-info-ligne">
 
                                     <span>
@@ -443,9 +498,7 @@ function AdminUtilisateurs() {
                             </div>
 
 
-                            {/* ========================================
-                                TYPE + STATUT
-                            ======================================== */}
+                            {/* TYPE + STATUT */}
 
                             <div className="admin-utilisateur-bottom">
 
@@ -496,16 +549,12 @@ function AdminUtilisateurs() {
                             </div>
 
 
-                            {/* ========================================
-                                ACTIONS
-                            ======================================== */}
+                            {/* ACTIONS */}
 
                             {user.role !== "admin" && (
 
                                 <div className="actions-utilisateur">
 
-
-                                    {/* ACTIVER / DÉSACTIVER */}
 
                                     <button
                                         className={
@@ -537,8 +586,6 @@ function AdminUtilisateurs() {
                                     </button>
 
 
-                                    {/* RÉINITIALISER LA MFA */}
-
                                     {user.mfaEnabled && (
 
                                         <button
@@ -559,8 +606,6 @@ function AdminUtilisateurs() {
 
                                     )}
 
-
-                                    {/* SUPPRIMER */}
 
                                     <button
                                         className="btn-supprimer"
@@ -592,6 +637,5 @@ function AdminUtilisateurs() {
     );
 
 }
-
 
 export default AdminUtilisateurs;

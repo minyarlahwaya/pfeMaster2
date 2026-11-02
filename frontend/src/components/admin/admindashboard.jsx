@@ -11,8 +11,10 @@ import {
     FaTimes,
     FaTrademark,
     FaComments,
+    FaCommentDots,
     FaShieldAlt,
-    FaRobot
+    FaRobot,
+    FaCarSide
 } from "react-icons/fa";
 
 import {
@@ -121,7 +123,7 @@ function AdminDashboard() {
                     );
 
                 }
-                
+
                 // ========================================
                 // NOMBRE DE RÉCLAMATIONS
                 // ========================================
@@ -133,8 +135,8 @@ function AdminDashboard() {
                 const listeReclamations = Array.isArray(reclamationsData)
                     ? reclamationsData
                     : reclamationsData.reclamations ||
-                      reclamationsData.data ||
-                      [];
+                    reclamationsData.data ||
+                    [];
 
                 setNombreReclamations(listeReclamations.length);
 
@@ -367,6 +369,32 @@ function AdminDashboard() {
 
                         <span>
                             Réclamations
+                        </span>
+                    </button>
+
+                    {/* GESTION DES COMMENTAIRES */}
+
+                    <button
+                        className="admin-menu-item"
+                        onClick={() => handleNavigation("/admin/avis")}
+                    >
+                        <FaCommentDots />
+
+                        <span>
+                            Gestion des commentaires
+                        </span>
+                    </button>
+
+                    {/* GESTION DES COMPATIBILITÉS */}
+
+                    <button
+                        className="admin-menu-item"
+                        onClick={() => handleNavigation("/admin/compatibilites")}
+                    >
+                        <FaCarSide />
+
+                        <span>
+                            Compatibilités véhicules
                         </span>
                     </button>
 
@@ -603,7 +631,7 @@ function AdminDashboard() {
 
                     </div>
 
-                    
+
                     {/* RÉCLAMATIONS */}
 
                     <div

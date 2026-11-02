@@ -1,76 +1,97 @@
+
 import axios from "axios";
-import { API_URL } from "../config";
 
-const apiURL = `${API_URL}/avis`;
+const apiURL = "http://localhost:5001/avis";
 
-// ========================================
 // Ajouter un avis
-// ========================================
-
 export const createAvis = async (avisData) => {
-    const response = await axios.post(
-        apiURL,
-        avisData,
-        {
-            withCredentials: true
-        }
-    );
-
+    const response = await axios.post(apiURL, avisData, {
+        withCredentials: true
+    });
     return response.data;
 };
 
-
-// ========================================
 // Récupérer tous les avis
-// ========================================
-
 export const getAllAvis = async () => {
-    const response = await axios.get(
-        apiURL
-    );
+    const response = await axios.get(apiURL, {
+        withCredentials: true
+    });
 
     return response.data;
 };
 
-
-// ========================================
-// Récupérer l'avis d'une commande
-// ========================================
-
+// Récupérer les avis d'une commande
 export const getAvisByCommande = async (commandeId) => {
     const response = await axios.get(
         `${apiURL}/commande/${commandeId}`,
-        {
-            withCredentials: true
-        }
+        { withCredentials: true }
     );
-
     return response.data;
 };
 
- // ========================================
 // Récupérer les avis d'un pneu
-// ========================================
-
 export const getAvisByPneu = async (pneuId) => {
     const response = await axios.get(
-        `${apiURL}/pneu/${pneuId}`
+        `${apiURL}/pneu/${pneuId}`,
+        { withCredentials: true }
     );
-
     return response.data;
 };
 
-// ========================================
-// Supprimer un avis (admin)
-// ========================================
-
-export const deleteAvis = async (id) => {
-    const response = await axios.delete(
-        `${apiURL}/${id}`,
-        {
-            withCredentials: true
-        }
+// Aimer ou retirer son like
+export const toggleLikeAvis = async (avisId) => {
+    const response = await axios.post(
+        `${apiURL}/${avisId}/like`,
+        {},
+        { withCredentials: true }
     );
+    return response.data;
+};
 
+// Ajouter une réponse à un avis
+export const ajouterReponseAvis = async (avisId, contenu) => {
+    const response = await axios.post(
+        `${apiURL}/${avisId}/reponses`,
+        { contenu },
+        { withCredentials: true }
+    );
+    return response.data;
+};
+
+// Modifier une réponse
+export const modifierReponseAvis = async (reponseId, contenu) => {
+    const response = await axios.put(
+        `${apiURL}/reponses/${reponseId}`,
+        { contenu },
+        { withCredentials: true }
+    );
+    return response.data;
+};
+
+// Supprimer une réponse
+export const supprimerReponseAvis = async (reponseId) => {
+    const response = await axios.delete(
+        `${apiURL}/reponses/${reponseId}`,
+        { withCredentials: true }
+    );
+    return response.data;
+};
+
+// Modifier son avis
+export const modifierAvis = async (avisId, avisData) => {
+    const response = await axios.put(
+        `${apiURL}/${avisId}`,
+        avisData,
+        { withCredentials: true }
+    );
+    return response.data;
+};
+
+// Supprimer un avis
+export const deleteAvis = async (avisId) => {
+    const response = await axios.delete(
+        `${apiURL}/${avisId}`,
+        { withCredentials: true }
+    );
     return response.data;
 };

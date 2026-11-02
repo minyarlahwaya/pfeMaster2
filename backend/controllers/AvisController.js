@@ -1,10 +1,18 @@
 
-const Avis = require("../models/AvisModel");
-const User = require("../models/UserModel");
-const Pneu = require("../models/PneuModel");
-const Commande = require("../models/Commande");
-const CommandeItem = require("../models/CommandeItem");
-const { envoyerNotificationTelegram } = require("../services/telegramService");
+const {
+    Avis,
+    AvisLike,
+    ReponseAvis,
+    User,
+    Pneu,
+    Commande,
+    CommandeItem
+} = require("../models/associations");
+
+const {
+    envoyerNotificationTelegram
+} = require("../services/telegramService");
+
 
 // ========================================
 // Ajouter un avis
@@ -15,8 +23,13 @@ const createAvis = async (req, res) => {
         const userId = req.userId;
         const { commandeId, pneuId, note, commentaire } = req.body;
 
-        // Vérifier les données obligatoires
-        if (!commandeId || !pneuId || note === undefined || note === null || note === "") {
+        if (
+            !commandeId ||
+            !pneuId ||
+            note === undefined ||
+            note === null ||
+            note === ""
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "La commande, le pneu et la note sont obligatoires."
@@ -25,7 +38,11 @@ const createAvis = async (req, res) => {
 
         const noteNombre = Number(note);
 
-        if (!Number.isInteger(noteNombre) || noteNombre < 1 || noteNombre > 5) {
+        if (
+            !Number.isInteger(noteNombre) ||
+            noteNombre < 1 ||
+            noteNombre > 5
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "La note doit être un nombre entier entre 1 et 5."
@@ -47,26 +64,25 @@ const createAvis = async (req, res) => {
         const commande = await Commande.findOne({
             where: {
                 id: commandeId,
-                userId: userId
+                userId
             }
         });
 
-      if (!commande) {
-    return res.status(404).json({
-        success: false,
-        message: "Commande introuvable ou non autorisée."
-    });
-}
+        if (!commande) {
+            return res.status(404).json({
+                success: false,
+                message: "Commande introuvable ou non autorisée."
+            });
+        }
 
-// Récupérer le client connecté
-const user = await User.findByPk(userId);
+        const user = await User.findByPk(userId);
 
-if (!user) {
-    return res.status(404).json({
-        success: false,
-        message: "Utilisateur introuvable."
-    });
-}
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Utilisateur introuvable."
+            });
+        }
 
         // Vérifier le statut de la commande
         const statutsAutorises = [
@@ -78,28 +94,30 @@ if (!user) {
         if (!statutsAutorises.includes(commande.statut)) {
             return res.status(400).json({
                 success: false,
-                message: "Vous pourrez laisser un avis lorsque votre commande sera confirmée."
+                message:
+                    "Vous pourrez laisser un avis lorsque votre commande sera confirmée."
             });
         }
 
-        // Vérifier que ce pneu figure réellement dans cette commande
+        // Vérifier que le pneu figure dans la commande
         const articleAchete = await CommandeItem.findOne({
             where: {
                 commandeId: commande.id,
-                pneuId: pneuId
+                pneuId: Number(pneuId)
             }
         });
 
         if (!articleAchete) {
             return res.status(403).json({
                 success: false,
-                message: "Vous ne pouvez pas évaluer un pneu qui ne figure pas dans cette commande."
+                message:
+                    "Vous ne pouvez pas évaluer un pneu qui ne figure pas dans cette commande."
             });
         }
 
-        // Créer l'avis : aucun contrôle limitant le nombre d'avis
+        // Créer l'avis
         const avis = await Avis.create({
-            userId: userId,
+            userId,
             commandeId: commande.id,
             pneuId: Number(pneuId),
             note: noteNombre,
@@ -109,11 +127,7 @@ if (!user) {
                     : null
         });
 
-
-        // ========================================
-        // NOTIFICATION TELEGRAM - NOUVEL AVIS
-        // ========================================
-
+        // Notification Telegram
         try {
             const nomClient = `${user.prenom} ${user.nom}`;
 
@@ -123,13 +137,13 @@ if (!user) {
                 `📦 Commande n° : ${commande.id}\n` +
                 `🛞 Pneu n° : ${pneuId}\n` +
                 `⭐ Note : ${noteNombre}/5\n` +
-                `💬 Commentaire : ${typeof commentaire === "string" && commentaire.trim()
-                    ? commentaire.trim()
-                    : "Aucun commentaire écrit"
+                `💬 Commentaire : ${
+                    typeof commentaire === "string" && commentaire.trim()
+                        ? commentaire.trim()
+                        : "Aucun commentaire écrit"
                 }`;
 
             await envoyerNotificationTelegram(messageTelegram);
-
         } catch (telegramError) {
             console.error(
                 "Erreur notification Telegram avis :",
@@ -137,8 +151,7 @@ if (!user) {
             );
         }
 
-
-        // Retourner l'avis avec les informations du client et du pneu
+        // Retourner l'avis avec ses informations
         const avisAvecDetails = await Avis.findByPk(avis.id, {
             include: [
                 {
@@ -158,7 +171,6 @@ if (!user) {
             message: "Votre avis a été ajouté avec succès.",
             avis: avisAvecDetails
         });
-
     } catch (error) {
         console.error("Erreur création avis :", error);
 
@@ -170,8 +182,9 @@ if (!user) {
     }
 };
 
+
 // ========================================
-// Récupérer tous les avis d'une commande
+// Récupérer les avis d'une commande
 // ========================================
 
 const getAvisByCommande = async (req, res) => {
@@ -179,11 +192,10 @@ const getAvisByCommande = async (req, res) => {
         const userId = req.userId;
         const { commandeId } = req.params;
 
-        // Vérifier que la commande appartient au client
         const commande = await Commande.findOne({
             where: {
                 id: commandeId,
-                userId: userId
+                userId
             }
         });
 
@@ -194,11 +206,10 @@ const getAvisByCommande = async (req, res) => {
             });
         }
 
-        // Une commande peut maintenant avoir plusieurs avis
         const avis = await Avis.findAll({
             where: {
                 commandeId: commande.id,
-                userId: userId
+                userId
             },
             include: [
                 {
@@ -209,18 +220,47 @@ const getAvisByCommande = async (req, res) => {
                 {
                     model: Pneu,
                     as: "pneu"
+                },
+                {
+                    model: AvisLike,
+                    as: "likes",
+                    attributes: ["id", "userId"]
+                },
+                {
+                    model: ReponseAvis,
+                    as: "reponses",
+                    include: [
+                        {
+                            model: User,
+                            as: "auteur",
+                            attributes: ["id", "nom", "prenom", "role"]
+                        }
+                    ]
                 }
             ],
-            order: [["createdAt", "DESC"]]
+            order: [["createdAt", "DESC"]],
+            distinct: true
+        });
+
+        const avisFormates = avis.map((item) => {
+            const donnees = item.toJSON();
+            const likes = donnees.likes || [];
+
+            return {
+                ...donnees,
+                likesCount: likes.length,
+                aimeParUtilisateur: likes.some(
+                    (like) => Number(like.userId) === Number(userId)
+                )
+            };
         });
 
         return res.status(200).json({
             success: true,
-            existe: avis.length > 0,
-            count: avis.length,
-            avis: avis
+            existe: avisFormates.length > 0,
+            count: avisFormates.length,
+            avis: avisFormates
         });
-
     } catch (error) {
         console.error("Erreur récupération avis commande :", error);
 
@@ -231,6 +271,7 @@ const getAvisByCommande = async (req, res) => {
         });
     }
 };
+
 
 // ========================================
 // Afficher tous les avis
@@ -248,17 +289,43 @@ const getAllAvis = async (req, res) => {
                 {
                     model: Pneu,
                     as: "pneu"
+                },
+                {
+                    model: AvisLike,
+                    as: "likes",
+                    attributes: ["id", "userId"]
+                },
+                {
+                    model: ReponseAvis,
+                    as: "reponses",
+                    include: [
+                        {
+                            model: User,
+                            as: "auteur",
+                            attributes: ["id", "nom", "prenom", "role"]
+                        }
+                    ]
                 }
             ],
-            order: [["createdAt", "DESC"]]
+            order: [["createdAt", "DESC"]],
+            distinct: true
+        });
+
+        const avisFormates = avis.map((item) => {
+            const donnees = item.toJSON();
+            const likes = donnees.likes || [];
+
+            return {
+                ...donnees,
+                likesCount: likes.length
+            };
         });
 
         return res.status(200).json({
             success: true,
-            count: avis.length,
-            avis: avis
+            count: avisFormates.length,
+            avis: avisFormates
         });
-
     } catch (error) {
         console.error("Erreur récupération avis :", error);
 
@@ -272,18 +339,262 @@ const getAllAvis = async (req, res) => {
 
 // ========================================
 // Supprimer un avis
+// Le client supprime son propre avis.
+// L'administrateur peut supprimer tous les avis.
 // ========================================
 
-const deleteAvis = async (req, res) => {
-    try {
-        const { id } = req.params;
+// ========================================
+// Récupérer les avis d'un pneu
+// ========================================
 
-        const avis = await Avis.findByPk(id);
+const getAvisByPneu = async (req, res) => {
+    try {
+        const { pneuId } = req.params;
+
+        if (
+            !Number.isInteger(Number(pneuId)) ||
+            Number(pneuId) < 1
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Identifiant du pneu invalide."
+            });
+        }
+
+        const pneu = await Pneu.findByPk(Number(pneuId));
+
+        if (!pneu) {
+            return res.status(404).json({
+                success: false,
+                message: "Pneu introuvable."
+            });
+        }
+
+        // Cette route est publique. Si le middleware d'authentification
+        // optionnel a renseigné req.userId, on l'utilise.
+        const userId = req.userId ? Number(req.userId) : null;
+
+        const avis = await Avis.findAll({
+            where: {
+                pneuId: Number(pneuId)
+            },
+            include: [
+                {
+                    model: User,
+                    as: "user",
+                    attributes: ["id", "nom", "prenom"]
+                },
+                {
+                    model: AvisLike,
+                    as: "likes",
+                    attributes: ["id", "userId"]
+                },
+                {
+                    model: ReponseAvis,
+                    as: "reponses",
+                    include: [
+                        {
+                            model: User,
+                            as: "auteur",
+                            attributes: ["id", "nom", "prenom", "role"]
+                        }
+                    ]
+                }
+            ],
+            order: [["createdAt", "DESC"]],
+            distinct: true
+        });
+
+        const avisFormates = avis.map((item) => {
+            const donnees = item.toJSON();
+            const likes = donnees.likes || [];
+
+            return {
+                ...donnees,
+                likesCount: likes.length,
+                aimeParUtilisateur: userId !== null
+                    ? likes.some(
+                        (like) => Number(like.userId) === userId
+                    )
+                    : false
+            };
+        });
+
+        return res.status(200).json({
+            success: true,
+            count: avisFormates.length,
+            avis: avisFormates
+        });
+    } catch (error) {
+        console.error("Erreur récupération avis du pneu :", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Impossible de récupérer les avis du pneu.",
+            error: error.message
+        });
+    }
+};
+
+
+// ========================================
+// Modifier un avis
+// Le client modifie son propre avis.
+// L'administrateur peut modifier tous les avis.
+// ========================================
+
+/* ========================================
+   Modifier un avis
+======================================== */
+const modifierAvis = async (req, res) => {
+    try {
+        const avisId = Number(req.params.id);
+        const userId = Number(req.userId);
+        const { note, commentaire } = req.body;
+
+        if (
+            !Number.isInteger(avisId) ||
+            avisId < 1 ||
+            !Number.isInteger(userId) ||
+            userId < 1
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Identifiant invalide."
+            });
+        }
+
+        const avis = await Avis.findByPk(avisId);
 
         if (!avis) {
             return res.status(404).json({
                 success: false,
                 message: "Avis introuvable."
+            });
+        }
+
+        const utilisateur = await User.findByPk(userId);
+
+        if (!utilisateur) {
+            return res.status(401).json({
+                success: false,
+                message: "Utilisateur introuvable."
+            });
+        }
+
+        const estAuteur = Number(avis.userId) === userId;
+        const estAdmin = utilisateur.role === "admin";
+
+        if (!estAuteur && !estAdmin) {
+            return res.status(403).json({
+                success: false,
+                message: "Vous ne pouvez modifier que votre propre avis."
+            });
+        }
+
+        // Au moins un champ doit être fourni.
+        if (note === undefined && commentaire === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Aucune modification fournie."
+            });
+        }
+
+        if (note !== undefined) {
+            const noteNombre = Number(note);
+
+            if (
+                !Number.isInteger(noteNombre) ||
+                noteNombre < 1 ||
+                noteNombre > 5
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "La note doit être un entier entre 1 et 5."
+                });
+            }
+
+            avis.note = noteNombre;
+        }
+
+        if (commentaire !== undefined) {
+            if (
+                typeof commentaire !== "string" ||
+                commentaire.length > 2000
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Le commentaire doit être un texte de 2000 caractères maximum."
+                });
+            }
+
+            avis.commentaire = commentaire.trim() || null;
+        }
+
+        await avis.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Avis modifié avec succès.",
+            avis
+        });
+
+    } catch (error) {
+        console.error("Erreur modification avis :", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Impossible de modifier l'avis."
+        });
+    }
+};
+
+
+/* ========================================
+   Supprimer un avis
+======================================== */
+const deleteAvis = async (req, res) => {
+    try {
+        const avisId = Number(req.params.id);
+        const userId = Number(req.userId);
+
+        if (
+            !Number.isInteger(avisId) ||
+            avisId < 1 ||
+            !Number.isInteger(userId) ||
+            userId < 1
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Identifiant invalide."
+            });
+        }
+
+        const avis = await Avis.findByPk(avisId);
+
+        if (!avis) {
+            return res.status(404).json({
+                success: false,
+                message: "Avis introuvable."
+            });
+        }
+
+        const utilisateur = await User.findByPk(userId);
+
+        if (!utilisateur) {
+            return res.status(401).json({
+                success: false,
+                message: "Utilisateur introuvable."
+            });
+        }
+
+        const estAuteur = Number(avis.userId) === userId;
+        const estAdmin = utilisateur.role === "admin";
+
+        if (!estAuteur && !estAdmin) {
+            return res.status(403).json({
+                success: false,
+                message: "Vous ne pouvez supprimer que vos propres avis."
             });
         }
 
@@ -299,70 +610,20 @@ const deleteAvis = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: "Impossible de supprimer l'avis.",
-            error: error.message
+            message: "Impossible de supprimer l'avis. Vérifiez également les relations avec les likes et les réponses."
         });
     }
 };
 
-
-
 // ========================================
-// Récupérer les avis d'un pneu
+// Export des fonctions
 // ========================================
-
-const getAvisByPneu = async (req, res) => {
-    try {
-        const { pneuId } = req.params;
-
-        if (!Number.isInteger(Number(pneuId)) || Number(pneuId) < 1) {
-            return res.status(400).json({
-                success: false,
-                message: "Identifiant du pneu invalide."
-            });
-        }
-
-        const pneu = await Pneu.findByPk(pneuId);
-
-        if (!pneu) {
-            return res.status(404).json({
-                success: false,
-                message: "Pneu introuvable."
-            });
-        }
-
-        const avis = await Avis.findAll({
-            where: { pneuId: Number(pneuId) },
-            include: [
-                {
-                    model: User,
-                    as: "user",
-                    attributes: ["id", "nom", "prenom"]
-                }
-            ],
-            order: [["createdAt", "DESC"]]
-        });
-
-        return res.status(200).json({
-            success: true,
-            count: avis.length,
-            avis: avis
-        });
-
-    } catch (error) {
-        console.error("Erreur récupération avis du pneu :", error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Impossible de récupérer les avis du pneu."
-        });
-    }
-};
 
 module.exports = {
     createAvis,
     getAvisByCommande,
     getAllAvis,
     deleteAvis,
-    getAvisByPneu
+    getAvisByPneu,
+     modifierAvis
 };

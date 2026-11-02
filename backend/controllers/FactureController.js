@@ -1,3 +1,4 @@
+
 const Facture = require("../models/FactureModel");
 const Commande = require("../models/Commande");
 const CommandeItem = require("../models/CommandeItem");
@@ -25,7 +26,9 @@ const chargerFacture = (commandeId) => Facture.findOne({
                         {
                             model: Pneu,
                             as: "pneu",
-                            include: [{ model: Marque, as: "marque" }]
+                            include: [
+                                { model: Marque, as: "marque" }
+                            ]
                         }
                     ]
                 }
@@ -36,17 +39,25 @@ const chargerFacture = (commandeId) => Facture.findOne({
 
 
 // ========================================
-// CONTRÔLE D'ACCÈS : le client propriétaire de la commande ou un administrateur
+// CONTRÔLE D'ACCÈS
+// Client propriétaire ou administrateur
 // ========================================
 
 const peutAccederFacture = async (req, facture) => {
-    if (facture.commande && facture.commande.userId === req.userId) {
+
+    if (
+        facture.commande &&
+        facture.commande.userId === req.userId
+    ) {
         return true;
     }
-    const user = await User.findByPk(req.userId, { attributes: ["role"] });
+
+    const user = await User.findByPk(req.userId, {
+        attributes: ["role"]
+    });
+
     return Boolean(user && user.role === "admin");
 };
-
 
 
 // ========================================
@@ -61,36 +72,20 @@ const getFactureByCommandeId = async (req, res) => {
 
         const facture = await chargerFacture(commandeId);
 
-        // ========================================
-        // VÉRIFIER SI LA FACTURE EXISTE ET APPARTIENT AU CLIENT
-        // (introuvable ou commande d'un autre client : même réponse)
-        // ========================================
-
-        if (!facture || !(await peutAccederFacture(req, facture))) {
-
+        if (
+            !facture ||
+            !(await peutAccederFacture(req, facture))
+        ) {
             return res.status(404).json({
-
                 success: false,
-
                 message: "Facture introuvable."
-
             });
-
         }
 
-
-        // ========================================
-        // RETOURNER LA FACTURE
-        // ========================================
-
         return res.status(200).json({
-
             success: true,
-
             facture: facture
-
         });
-
 
     } catch (error) {
 
@@ -100,13 +95,9 @@ const getFactureByCommandeId = async (req, res) => {
         );
 
         return res.status(500).json({
-
             success: false,
-
             message: "Impossible de récupérer la facture.",
-
             error: error.message
-
         });
 
     }
@@ -116,443 +107,461 @@ const getFactureByCommandeId = async (req, res) => {
 
 // ========================================
 // DESSINER LE CONTENU DE LA FACTURE
-// (utilisé pour le téléchargement et pour l'envoi par e-mail)
+// Utilisé pour le téléchargement et l'e-mail
 // ========================================
 
 const dessinerFacture = (doc, facture) => {
 
+    // ========================================
+    // EN-TÊTE
+    // ========================================
 
-        // ========================================
-        // EN-TÊTE
-        // ========================================
+    doc
+        .fontSize(24)
+        .font("Helvetica-Bold")
+        .text("LANDOLSI TIRES", {
+            align: "center"
+        });
 
-        doc
-            .fontSize(24)
-            .font("Helvetica-Bold")
-            .text("LANDOLSI TIRES", {
-                align: "center"
-            });
+    doc
+        .moveDown(0.3)
+        .fontSize(11)
+        .font("Helvetica")
+        .text("Vente de pneumatiques", {
+            align: "center"
+        });
 
+    doc.moveDown();
 
-        doc
-            .moveDown(0.3)
-            .fontSize(11)
-            .font("Helvetica")
-            .text("Vente de pneumatiques", {
-                align: "center"
-            });
+    doc
+        .fontSize(20)
+        .font("Helvetica-Bold")
+        .text("FACTURE", {
+            align: "center"
+        });
 
-
-        doc.moveDown();
-
-
-        doc
-            .fontSize(20)
-            .font("Helvetica-Bold")
-            .text("FACTURE", {
-                align: "center"
-            });
+    doc.moveDown();
 
 
-        doc.moveDown();
+    // ========================================
+    // INFORMATIONS FACTURE
+    // ========================================
+
+    doc
+        .fontSize(11)
+        .font("Helvetica-Bold")
+        .text(`Facture N° : ${facture.numeroFacture}`);
+
+    const dateFacture = new Date(
+        facture.dateFacture
+    ).toLocaleDateString("fr-FR");
+
+    doc
+        .font("Helvetica")
+        .text(`Date : ${dateFacture}`);
+
+    doc.moveDown(1.5);
 
 
-        // ========================================
-        // INFORMATIONS FACTURE
-        // ========================================
+    // ========================================
+    // INFORMATIONS CLIENT
+    // ========================================
 
-        doc
-            .fontSize(11)
-            .font("Helvetica-Bold")
-            .text(
-                `Facture N° : ${facture.numeroFacture}`
-            );
+    const commande = facture.commande;
 
+    doc
+        .fontSize(14)
+        .font("Helvetica-Bold")
+        .text("CLIENT");
 
-        const dateFacture =
-            new Date(facture.dateFacture)
-                .toLocaleDateString("fr-FR");
+    doc.moveDown(0.4);
 
+    doc
+        .fontSize(11)
+        .font("Helvetica")
+        .text(`Nom : ${commande.nom} ${commande.prenom}`);
 
-        doc
-            .font("Helvetica")
-            .text(
-                `Date : ${dateFacture}`
-            );
+    doc.text(`Téléphone : ${commande.telephone}`);
 
+    doc.text(
+        `Adresse : ${commande.adresse}, ${commande.ville}, ${commande.codePostal}`
+    );
 
-        doc.moveDown(1.5);
-
-
-        // ========================================
-        // INFORMATIONS CLIENT
-        // ========================================
-
-        doc
-            .fontSize(14)
-            .font("Helvetica-Bold")
-            .text("CLIENT");
+    doc.moveDown(1.5);
 
 
-        doc.moveDown(0.4);
+    // ========================================
+    // TITRE ARTICLES
+    // ========================================
+
+    doc
+        .fontSize(14)
+        .font("Helvetica-Bold")
+        .text("DÉTAIL DE LA COMMANDE");
+
+    doc.moveDown(0.7);
 
 
-        const commande =
-            facture.commande;
+    // ========================================
+    // TABLEAU DES ARTICLES
+    // ========================================
+
+    const tableTop = doc.y;
+
+    const colX = {
+        designation: 50,
+        dimension: 225,
+        quantite: 325,
+        prix: 385,
+        total: 465
+    };
 
 
-        doc
-            .fontSize(11)
-            .font("Helvetica")
-            .text(
-                `Nom : ${commande.nom} ${commande.prenom}`
-            );
+    // EN-TÊTE DU TABLEAU
+
+    doc
+        .fontSize(9)
+        .font("Helvetica-Bold");
+
+    doc.text(
+        "Désignation",
+        colX.designation,
+        tableTop,
+        { width: 165 }
+    );
+
+    doc.text(
+        "Dimension",
+        colX.dimension,
+        tableTop,
+        { width: 90 }
+    );
+
+    doc.text(
+        "Qté",
+        colX.quantite,
+        tableTop,
+        {
+            width: 40,
+            align: "center"
+        }
+    );
+
+    doc.text(
+        "P.U.",
+        colX.prix,
+        tableTop,
+        {
+            width: 60,
+            align: "right"
+        }
+    );
+
+    doc.text(
+        "Total",
+        colX.total,
+        tableTop,
+        {
+            width: 80,
+            align: "right"
+        }
+    );
+
+    doc.moveDown(0.8);
+
+    doc
+        .moveTo(50, doc.y)
+        .lineTo(545, doc.y)
+        .stroke();
+
+    doc.moveDown(0.7);
 
 
-        doc.text(
-            `Téléphone : ${commande.telephone}`
-        );
+    // ========================================
+    // ARTICLES
+    // ========================================
 
+    for (const item of commande.items || []) {
 
-        doc.text(
-            `Adresse : ${commande.adresse}, ${commande.ville}, ${commande.codePostal}`
-        );
+        const pneu = item.pneu;
 
+        if (!pneu) {
+            continue;
+        }
 
-        doc.moveDown(1.5);
+        const marque = pneu.marque
+            ? pneu.marque.nom
+            : "";
 
+        const designation = `${marque} ${pneu.modele}`;
 
-        // ========================================
-        // TITRE ARTICLES
-        // ========================================
+        const prixUnitaire = Number(item.prix) || 0;
+        const quantite = Number(item.quantite) || 0;
 
-        doc
-            .fontSize(14)
-            .font("Helvetica-Bold")
-            .text("DÉTAIL DE LA COMMANDE");
+        const totalItem = quantite * prixUnitaire;
 
-
-        doc.moveDown(0.7);
-
-
-        // ========================================
-        // TABLEAU
-        // ========================================
-
-        const tableTop = doc.y;
-
-        const colX = {
-            designation: 50,
-            dimension: 225,
-            quantite: 325,
-            prix: 385,
-            total: 465
-        };
-
-
-        // ----------------------------------------
-        // EN-TÊTE DU TABLEAU
-        // ----------------------------------------
+        const ligneY = doc.y;
 
         doc
             .fontSize(9)
-            .font("Helvetica-Bold");
-
+            .font("Helvetica");
 
         doc.text(
-            "Désignation",
+            designation,
             colX.designation,
-            tableTop,
-            {
-                width: 165
-            }
+            ligneY,
+            { width: 165 }
         );
 
-
         doc.text(
-            "Dimension",
+            pneu.dimension || "",
             colX.dimension,
-            tableTop,
-            {
-                width: 90
-            }
+            ligneY,
+            { width: 90 }
         );
 
-
         doc.text(
-            "Qté",
+            String(quantite),
             colX.quantite,
-            tableTop,
+            ligneY,
             {
                 width: 40,
                 align: "center"
             }
         );
 
-
         doc.text(
-            "P.U.",
+            `${prixUnitaire.toFixed(2)} DT`,
             colX.prix,
-            tableTop,
+            ligneY,
             {
                 width: 60,
                 align: "right"
             }
         );
 
-
         doc.text(
-            "Total",
+            `${totalItem.toFixed(2)} DT`,
             colX.total,
-            tableTop,
+            ligneY,
             {
                 width: 80,
                 align: "right"
             }
         );
 
+        doc.moveDown(1.2);
 
-        doc.moveDown(0.8);
-
-
-        // Ligne sous l'en-tête
         doc
             .moveTo(50, doc.y)
             .lineTo(545, doc.y)
             .stroke();
 
-
         doc.moveDown(0.7);
 
-
-        // ----------------------------------------
-        // ARTICLES
-        // ----------------------------------------
-
-        for (const item of commande.items) {
-
-            const pneu = item.pneu;
+    }
 
 
-            const marque =
-                pneu.marque
-                    ? pneu.marque.nom
-                    : "";
+    // ========================================
+    // RÉCAPITULATIF FINANCIER
+    // ========================================
+
+    doc.moveDown(0.8);
+
+    doc
+        .moveTo(50, doc.y)
+        .lineTo(545, doc.y)
+        .stroke();
+
+    doc.moveDown(0.8);
 
 
-            const designation =
-                `${marque} ${pneu.modele}`;
+    // Sous-total enregistré dans la commande
+    const sousTotal = Number(
+        commande.sousTotal ??
+        (commande.items || []).reduce(
+            (sum, item) =>
+                sum +
+                (Number(item.quantite) || 0) *
+                (Number(item.prix) || 0),
+            0
+        )
+    );
+
+    // Pourcentage de remise
+    const remisePourcentage = Number(
+        commande.remisePourcentage || 0
+    );
+
+    // Montant de remise enregistré dans la commande
+    const remiseMontant = Number(
+        commande.remiseMontant ??
+        (sousTotal * remisePourcentage / 100)
+    );
+
+    // Total final enregistré dans la commande
+    const totalFinal = Number(commande.total);
 
 
-            const totalItem =
-                item.quantite * item.prix;
+    // SOUS-TOTAL
+
+    doc
+        .fontSize(11)
+        .font("Helvetica")
+        .text(
+            `Sous-total : ${sousTotal.toFixed(2)} DT`,
+            300,
+            doc.y,
+            {
+                width: 245,
+                align: "right"
+            }
+        );
+
+    doc.moveDown(0.5);
 
 
-            const ligneY = doc.y;
+    // REMISE
 
+    if (remiseMontant > 0) {
 
-            doc
-                .fontSize(9)
-                .font("Helvetica");
-
-
-            // Désignation
-            doc.text(
-                designation,
-                colX.designation,
-                ligneY,
+        doc
+            .fontSize(11)
+            .font("Helvetica")
+            .fillColor("green")
+            .text(
+                `Remise (${remisePourcentage} %) : -${remiseMontant.toFixed(2)} DT`,
+                300,
+                doc.y,
                 {
-                    width: 165
-                }
-            );
-
-
-            // Dimension
-            doc.text(
-                pneu.dimension,
-                colX.dimension,
-                ligneY,
-                {
-                    width: 90
-                }
-            );
-
-
-            // Quantité
-            doc.text(
-                String(item.quantite),
-                colX.quantite,
-                ligneY,
-                {
-                    width: 40,
-                    align: "center"
-                }
-            );
-
-
-            // Prix unitaire
-            doc.text(
-                `${item.prix.toFixed(2)} DT`,
-                colX.prix,
-                ligneY,
-                {
-                    width: 60,
+                    width: 245,
                     align: "right"
                 }
             );
 
+        doc.fillColor("black");
 
-            // Total
-            doc.text(
-                `${totalItem.toFixed(2)} DT`,
-                colX.total,
-                ligneY,
-                {
-                    width: 80,
-                    align: "right"
-                }
-            );
+        doc.moveDown(0.5);
+    }
 
 
-            doc.moveDown(1.2);
+    // TOTAL FINAL
+
+    doc
+        .fontSize(15)
+        .font("Helvetica-Bold")
+        .text(
+            `TOTAL À PAYER : ${totalFinal.toFixed(2)} DT`,
+            250,
+            doc.y,
+            {
+                width: 295,
+                align: "right"
+            }
+        );
+
+    doc.moveDown(1.5);
 
 
-            // Ligne de séparation
-            doc
-                .moveTo(50, doc.y)
-                .lineTo(545, doc.y)
-                .stroke();
+    // ========================================
+    // STATUT
+    // ========================================
+
+    doc
+        .fontSize(11)
+        .font("Helvetica-Bold")
+        .text(
+            `Statut commande : ${commande.statut}`,
+            50,
+            doc.y,
+            {
+                width: 495,
+                align: "left"
+            }
+        );
+
+    doc.moveDown(2);
 
 
-            doc.moveDown(0.7);
+    // ========================================
+    // INFORMATIONS RÉCUPÉRATION
+    // ========================================
 
-        }
+    doc
+        .fontSize(10)
+        .font("Helvetica")
+        .text(
+            "Le client récupère sa commande directement chez LANDOLSI TIRES.",
+            50,
+            doc.y,
+            {
+                width: 495,
+                align: "center"
+            }
+        );
 
-
-        // ========================================
-        // TOTAL
-        // ========================================
-
-       // ========================================
-// TOTAL
-// ========================================
-
-doc.moveDown(0.8);
-
-
-// Ligne supérieure du total
-doc
-    .moveTo(50, doc.y)
-    .lineTo(545, doc.y)
-    .stroke();
-
-doc.moveDown(0.8);
+    doc.moveDown(0.7);
 
 
-// Total sur une seule ligne
-doc
-    .fontSize(15)
-    .font("Helvetica-Bold")
-    .text(
-        `TOTAL : ${commande.total.toFixed(2)} DT`,
-        350,
-        doc.y,
-        {
-            width: 195,
-            align: "right",
-            lineBreak: false
-        }
-    );
+    // ========================================
+    // MESSAGE FINAL
+    // ========================================
 
-
-doc.moveDown(1.5);
-
-
-// ========================================
-// STATUT
-// ========================================
-
-doc
-    .fontSize(11)
-    .font("Helvetica-Bold")
-    .text(
-        `Statut commande : ${commande.statut}`,
-        50,
-        doc.y,
-        {
-            width: 495,
-            align: "left",
-            lineBreak: false
-        }
-    );
-
-
-doc.moveDown(2);
-
-
-// ========================================
-// INFORMATIONS RÉCUPÉRATION
-// ========================================
-
-doc
-    .fontSize(10)
-    .font("Helvetica")
-    .text(
-        "Le client récupère sa commande directement chez LANDOLSI TIRES.",
-        50,
-        doc.y,
-        {
-            width: 495,
-            align: "center"
-        }
-    );
-
-
-doc.moveDown(0.7);
-
-
-// ========================================
-// MESSAGE FINAL
-// ========================================
-
-doc
-    .fontSize(10)
-    .font("Helvetica")
-    .text(
-        "Merci pour votre confiance !",
-        50,
-        doc.y,
-        {
-            width: 495,
-            align: "center"
-        }
-    );
-
-
-// ========================================
-// TERMINER LE PDF
-// ========================================
+    doc
+        .fontSize(10)
+        .font("Helvetica")
+        .text(
+            "Merci pour votre confiance !",
+            50,
+            doc.y,
+            {
+                width: 495,
+                align: "center"
+            }
+        );
 
 };
 
 
 // ========================================
-// PDF EN MÉMOIRE (pièce jointe d'e-mail)
+// PDF EN MÉMOIRE
+// Pièce jointe d'e-mail
 // ========================================
 
-const genererFacturePdfBuffer = (facture) => new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margin: 50 });
-    const chunks = [];
-    doc.on("data", (chunk) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-    try {
-        dessinerFacture(doc, facture);
-        doc.end();
-    } catch (error) {
-        reject(error);
-    }
-});
+const genererFacturePdfBuffer = (facture) =>
+
+    new Promise((resolve, reject) => {
+
+        const doc = new PDFDocument({
+            size: "A4",
+            margin: 50
+        });
+
+        const chunks = [];
+
+        doc.on("data", (chunk) => {
+            chunks.push(chunk);
+        });
+
+        doc.on("end", () => {
+            resolve(Buffer.concat(chunks));
+        });
+
+        doc.on("error", reject);
+
+        try {
+
+            dessinerFacture(doc, facture);
+
+            doc.end();
+
+        } catch (error) {
+
+            reject(error);
+
+        }
+
+    });
 
 
 // ========================================
@@ -567,17 +576,25 @@ const generateFacturePDF = async (req, res) => {
 
         const facture = await chargerFacture(commandeId);
 
-        // Introuvable OU appartenant à un autre client : même réponse
-        if (!facture || !(await peutAccederFacture(req, facture))) {
+        if (
+            !facture ||
+            !(await peutAccederFacture(req, facture))
+        ) {
+
             return res.status(404).json({
                 success: false,
                 message: "Facture introuvable."
             });
+
         }
 
         const pdf = await genererFacturePdfBuffer(facture);
 
-        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Type",
+            "application/pdf"
+        );
+
         res.setHeader(
             "Content-Disposition",
             `attachment; filename="${facture.numeroFacture}.pdf"`
@@ -587,7 +604,10 @@ const generateFacturePDF = async (req, res) => {
 
     } catch (error) {
 
-        console.error("❌ Erreur génération PDF facture :", error);
+        console.error(
+            "❌ Erreur génération PDF facture :",
+            error
+        );
 
         return res.status(500).json({
             success: false,
@@ -598,6 +618,10 @@ const generateFacturePDF = async (req, res) => {
 
 };
 
+
+// ========================================
+// EXPORTER LES FONCTIONS
+// ========================================
 
 module.exports = {
     getFactureByCommandeId,

@@ -218,45 +218,21 @@ function Login() {
     // CONNEXION TERMINÉE
     // ==============================
 
-    const finishLogin = (user) => {
 
-        console.log(
-            "✅ Connexion réussie :",
-            user
-        );
+const finishLogin = (user) => {
 
+    console.log("✅ Connexion réussie :", user);
 
-        // ========================================
-        // INFORMER LA NAVBAR
-        // ========================================
+    // Informer la Navbar que l'authentification a changé
+    window.dispatchEvent(new Event("authChanged"));
 
-        window.dispatchEvent(
-            new Event("authChanged")
-        );
-
-
-        // ========================================
-        // MESSAGE
-        // ========================================
-
-        alert("Connexion réussie");
-
-
-        // ========================================
-        // REDIRECTION SELON LE RÔLE
-        // ========================================
-
-        if (user.role === "admin") {
-
-            navigate("/admin");
-
-        } else {
-
-            navigate("/profile");
-
-        }
-
-    };
+    // Redirection selon le rôle
+    if (user.role === "admin") {
+        navigate("/admin");
+    } else {
+        navigate("/profile");
+    }
+};
 
 
     // ==============================
