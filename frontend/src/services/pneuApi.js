@@ -194,3 +194,53 @@ export const searchVehiculeByImmatriculation = (immatriculation) => {
     );
 
 };
+
+
+// ==============================
+// Importer des pneus depuis Excel
+// ==============================
+// Importer des pneus depuis Excel
+// ==============================
+
+export const importPneusExcel = (formData, dryRun = false) => {
+
+    return axios.post(
+        `${apiURL}/import-excel?dryRun=${dryRun}`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            },
+            withCredentials: true
+        }
+    );
+
+};
+
+// ========================================
+// Récupérer les pneus archivés (ADMIN)
+// ========================================
+
+export const getArchivedPneus = () => {
+    return axios.get(
+        `${apiURL}/archives`,
+        {
+            withCredentials: true
+        }
+    );
+};
+
+
+// ========================================
+// Restaurer un pneu archivé (ADMIN)
+// ========================================
+
+export const restorePneu = (id) => {
+    return axios.put(
+        `${apiURL}/restore/${id}`,
+        {},
+        {
+            withCredentials: true
+        }
+    );
+};

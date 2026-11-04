@@ -8,6 +8,7 @@
     display: flex;
     background: #f5f5f5;
     color: #111;
+    overflow: visible;
 }
 
 
@@ -17,8 +18,7 @@
 
 .admin-sidebar {
     width: 260px;
-    min-height: 100vh;
-
+    height: 100vh;
     background: #111;
     color: white;
 
@@ -30,8 +30,10 @@
     top: 0;
     bottom: 0;
 
-    z-index: 1000;
+    overflow-y: auto;
+    overflow-x: hidden;
 
+    z-index: 1000;
     transition: transform 0.3s ease;
 }
 
@@ -74,11 +76,11 @@
 
 .admin-menu {
     padding: 20px 12px;
-
     display: flex;
     flex-direction: column;
-
     gap: 6px;
+
+    flex: 1;
 }
 
 .admin-menu-item {
@@ -126,13 +128,11 @@
 /* ========================================
    BAS SIDEBAR
 ======================================== */
-
 .admin-sidebar-bottom {
     margin-top: auto;
-
     padding: 15px;
-
     border-top: 1px solid #333;
+    flex-shrink: 0;
 }
 
 .admin-logout {
@@ -415,12 +415,11 @@
 /* ========================================
    MOBILE
 ======================================== */
-
 @media (max-width: 768px) {
 
-    /* SIDEBAR */
-
     .admin-sidebar {
+        width: 260px;
+        height: 100vh;
         transform: translateX(-100%);
     }
 
@@ -428,80 +427,48 @@
         transform: translateX(0);
     }
 
-
-    /* CONTENU */
-
     .admin-main {
         margin-left: 0;
-
         width: 100%;
-
+        min-height: 100vh;
+        height: auto;
         padding: 20px;
-
-        box-sizing: border-box;
+        overflow: visible;
     }
-
-
-    /* BOUTON MENU */
 
     .menu-button {
         display: flex;
-
         align-items: center;
         justify-content: center;
-
         width: 42px;
         height: 42px;
-
         border: none;
-
         background: #111;
-
         color: white;
-
         border-radius: 6px;
-
         cursor: pointer;
-
         font-size: 18px;
-
         flex-shrink: 0;
     }
 
-
-    /* BOUTON FERMER */
-
     .close-sidebar {
         display: flex;
-
         position: absolute;
-
         right: 15px;
         top: 20px;
-
         width: 35px;
         height: 35px;
-
         align-items: center;
         justify-content: center;
-
         border: none;
-
         background: transparent;
-
         color: white;
-
         cursor: pointer;
-
         font-size: 18px;
     }
 
-
-    /* HEADER */
-
     .admin-header {
         align-items: flex-start;
-
         margin-bottom: 25px;
     }
 
@@ -511,28 +478,17 @@
 
     .admin-header p {
         font-size: 13px;
-
         line-height: 1.5;
     }
 
-
-    /* STATISTIQUES */
-
     .admin-stats {
         grid-template-columns: 1fr;
-
         gap: 15px;
     }
-
-
-    /* BIENVENUE */
 
     .admin-welcome-card {
         padding: 22px;
     }
-
-
-    /* ACTIONS */
 
     .admin-quick-actions {
         flex-direction: column;
@@ -540,25 +496,16 @@
 
     .admin-quick-actions button {
         width: 100%;
-
         justify-content: center;
     }
 
-
-    /* OVERLAY */
-
     .admin-overlay {
         position: fixed;
-
         inset: 0;
-
         background: rgba(0, 0, 0, 0.5);
-
         z-index: 999;
     }
-
 }
-
 
 /* ========================================
    PETIT MOBILE
@@ -601,3 +548,43 @@
 
 }
 
+
+/* ========================================
+   SCROLL GLOBAL DU DASHBOARD
+======================================== */
+
+html {
+    min-height: 100%;
+    overflow-y: auto;
+}
+
+body {
+    min-height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#root {
+    min-height: 100vh;
+    height: auto;
+}
+
+.admin-layout {
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+}
+
+.admin-main {
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+}
+
+/* Scroll indépendant de la sidebar */
+.admin-sidebar {
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #111;
+}

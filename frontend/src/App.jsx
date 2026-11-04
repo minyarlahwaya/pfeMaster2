@@ -58,6 +58,7 @@ import AdminSecurite from "./components/admin/AdminSecurite";
 import AdminAssistantIA from "./components/admin/AdminAssistantIA";
 import GestionAvis from "./components/admin/GestionAvis";
 import GestionCompatibilites from "./components/admin/GestionCompatibilites";
+import AdminPneusArchives from "./components/admin/AdminPneusArchives";
 
 // ========================================
 // CHATBOT
@@ -174,6 +175,10 @@ function AppContent() {
                 <Route path="/admin/avis" element={<GestionAvis />} />
 
                 <Route path="/admin/compatibilites" element={<GestionCompatibilites />} />
+                <Route
+                    path="/admin/pneus-archives"
+                    element={<AdminPneusArchives />}
+                />
 
             </Routes>
 

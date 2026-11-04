@@ -14,7 +14,8 @@ import {
     FaCommentDots,
     FaShieldAlt,
     FaRobot,
-    FaCarSide
+    FaCarSide,
+    FaArchive
 } from "react-icons/fa";
 
 import {
@@ -296,6 +297,20 @@ function AdminDashboard() {
                         </span>
 
                     </button>
+
+
+                    {/* PNEUS ARCHIVÉS */}
+
+<button
+    className="admin-menu-item"
+    onClick={() => handleNavigation("/admin/pneus-archives")}
+>
+    <FaArchive />
+
+    <span>
+        Pneus archivés
+    </span>
+</button>
 
 
                     {/* MARQUES */}
