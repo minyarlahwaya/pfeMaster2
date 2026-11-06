@@ -639,3 +639,29 @@
 .cart-discount-line strong {
     color: #198754;
 }
+.cart-item-price {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cart-original-price {
+    color: #888;
+    text-decoration: line-through;
+    font-size: 14px;
+}
+
+.cart-promotion-badge {
+    background: #dc3545;
+    color: white;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.cart-promotional-price {
+    color: #dc3545;
+    font-size: 18px;
+}

@@ -498,12 +498,33 @@ function Cart() {
                                     <p>
                                         Saison : {pneu.saison}
                                     </p>
+<div className="cart-item-price">
 
-                                    <p className="cart-item-price">
+    {Number(pneu.pourcentagePromotion) > 0 ? (
 
-                                        {pneu.prix} DT
+        <>
+            <span className="cart-original-price">
+                {Number(pneu.prixOriginal).toFixed(2)} DT
+            </span>
 
-                                    </p>
+            <span className="cart-promotion-badge">
+                -{pneu.pourcentagePromotion} %
+            </span>
+
+            <strong className="cart-promotional-price">
+                {Number(pneu.prix).toFixed(2)} DT
+            </strong>
+        </>
+
+    ) : (
+
+        <strong>
+            {Number(pneu.prix).toFixed(2)} DT
+        </strong>
+
+    )}
+
+</div>
 
                                 </div>
 

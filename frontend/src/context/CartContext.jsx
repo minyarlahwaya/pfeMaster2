@@ -1,3 +1,4 @@
+
 import {
     createContext,
     useContext,
@@ -5,51 +6,117 @@ import {
     useState
 } from "react";
 
+import { getAllPromotions } from "../services/promotionApi";
+
 const CartContext = createContext();
 
-export function CartProvider({ children }) {
+// Appliquer la promotion à un pneu
+const appliquerPromotion = (pneu, promotions) => {
 
-    // ==============================
-    // PANIER
-    // ==============================
+    const prixOriginal = Number(
+        pneu.prixOriginal ?? pneu.prix
+    );
+
+    const promotion = promotions.find(
+        (promo) =>
+            Number(promo.pneuId) === Number(pneu.id) &&
+            promo.active === true
+    );
+
+    if (!promotion) {
+        return {
+            ...pneu,
+            prixOriginal,
+            prix: prixOriginal,
+            pourcentagePromotion: 0,
+            promotionId: null
+        };
+    }
+
+    const pourcentage = Number(promotion.pourcentage);
+
+    const prixPromotion = Number(
+        (
+            prixOriginal *
+            (1 - pourcentage / 100)
+        ).toFixed(2)
+    );
+
+    return {
+        ...pneu,
+        prixOriginal,
+        prix: prixPromotion,
+        pourcentagePromotion: pourcentage,
+        promotionId: promotion.id
+    };
+};
+
+export function CartProvider({ children }) {
 
     const [cartItems, setCartItems] = useState(() => {
 
         try {
+            const savedCart = localStorage.getItem("cart");
 
-            const savedCart =
-                localStorage.getItem("cart");
-
-            return savedCart
-                ? JSON.parse(savedCart)
-                : [];
+            return savedCart ? JSON.parse(savedCart) : [];
 
         } catch (error) {
-
-            console.error(
-                "Erreur lecture panier :",
-                error
-            );
-
+            console.error("Erreur lecture panier :", error);
             return [];
-
         }
 
     });
 
+    const [promotions, setPromotions] = useState([]);
 
-    // ==============================
-    // NOTIFICATION
-    // ==============================
+    const [notification, setNotification] = useState(null);
 
-    const [notification, setNotification] =
-        useState(null);
+    // Récupérer les promotions actives
+    useEffect(() => {
 
+        let actif = true;
 
-    // ==============================
-    // SAUVEGARDER LE PANIER
-    // ==============================
+        const chargerPromotions = async () => {
 
+            try {
+
+                const response = await getAllPromotions();
+
+                const promotionsRecues = Array.isArray(response.data)
+                    ? response.data
+                    : response.data?.promotions || [];
+
+                if (!actif) return;
+
+                setPromotions(promotionsRecues);
+
+                // Actualiser les prix des articles déjà dans le panier
+                setCartItems((currentItems) =>
+                    currentItems.map((item) =>
+                        appliquerPromotion(item, promotionsRecues)
+                    )
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Erreur récupération promotions :",
+                    error
+                );
+
+            }
+
+        };
+
+        chargerPromotions();
+
+        return () => {
+            actif = false;
+        };
+
+    }, []);
+
+    // Sauvegarder le panier
     useEffect(() => {
 
         localStorage.setItem(
@@ -59,32 +126,24 @@ export function CartProvider({ children }) {
 
     }, [cartItems]);
 
-
-    // ==============================
-    // AFFICHER NOTIFICATION
-    // ==============================
-
+    // Notification
     const showNotification = (message) => {
 
-        setNotification({
-            message
-        });
-
+        setNotification({ message });
 
         setTimeout(() => {
-
             setNotification(null);
-
         }, 3000);
 
     };
 
-
-    // ==============================
-    // AJOUTER AU PANIER
-    // ==============================
-
+    // Ajouter au panier
     const addToCart = (pneu, quantity = 1) => {
+
+        const pneuAvecPromotion = appliquerPromotion(
+            pneu,
+            promotions
+        );
 
         setCartItems((currentItems) => {
 
@@ -92,69 +151,44 @@ export function CartProvider({ children }) {
                 (item) => item.id === pneu.id
             );
 
-
-            // ==============================
-            // LE PNEU EXISTE DÉJÀ
-            // ==============================
-
             if (existingItem) {
 
                 const nouvelleQuantite =
                     Number(existingItem.quantity) +
                     Number(quantity);
 
-
-                // Ne jamais dépasser le stock
-
                 const quantiteFinale = Math.min(
                     nouvelleQuantite,
                     Number(pneu.stock)
                 );
 
-
                 return currentItems.map((item) =>
 
                     item.id === pneu.id
-
                         ? {
-                            ...item,
+                            ...pneuAvecPromotion,
                             quantity: quantiteFinale
                         }
-
                         : item
 
                 );
 
             }
 
-
-            // ==============================
-            // NOUVEAU PNEU
-            // ==============================
-
             const quantiteFinale = Math.min(
                 Number(quantity),
                 Number(pneu.stock)
             );
 
-
             return [
-
                 ...currentItems,
-
                 {
-                    ...pneu,
+                    ...pneuAvecPromotion,
                     quantity: quantiteFinale
                 }
-
             ];
 
         });
-
-
-        // ==============================
-        // NOTIFICATION
-        // ==============================
 
         showNotification(
             `${pneu.modele} a été ajouté au panier`
@@ -162,44 +196,25 @@ export function CartProvider({ children }) {
 
     };
 
-
-    // ==============================
-    // AUGMENTER QUANTITÉ
-    // ==============================
-
+    // Augmenter quantité
     const increaseQuantity = (id) => {
 
         setCartItems((currentItems) =>
 
             currentItems.map((item) => {
 
-                if (item.id !== id) {
-                    return item;
-                }
-
+                if (item.id !== id) return item;
 
                 const nouvelleQuantite =
                     Number(item.quantity) + 1;
 
-
-                // Ne pas dépasser le stock
-
-                if (
-                    nouvelleQuantite >
-                    Number(item.stock)
-                ) {
-
+                if (nouvelleQuantite > Number(item.stock)) {
                     return item;
-
                 }
 
-
                 return {
-
                     ...item,
-
                     quantity: nouvelleQuantite
-
                 };
 
             })
@@ -208,156 +223,79 @@ export function CartProvider({ children }) {
 
     };
 
-
-    // ==============================
-    // DIMINUER QUANTITÉ
-    // ==============================
-
+    // Diminuer quantité
     const decreaseQuantity = (id) => {
 
         setCartItems((currentItems) =>
 
             currentItems
-
                 .map((item) => {
 
-                    if (item.id !== id) {
-                        return item;
-                    }
-
+                    if (item.id !== id) return item;
 
                     return {
-
                         ...item,
-
-                        quantity:
-                            Number(item.quantity) - 1
-
+                        quantity: Number(item.quantity) - 1
                     };
 
                 })
-
-
-                .filter(
-                    (item) =>
-                        Number(item.quantity) > 0
-                )
+                .filter((item) => Number(item.quantity) > 0)
 
         );
 
     };
 
-
-    // ==============================
-    // SUPPRIMER DU PANIER
-    // ==============================
-
+    // Supprimer un article
     const removeFromCart = (id) => {
 
         setCartItems((currentItems) =>
-
-            currentItems.filter(
-                (item) =>
-                    item.id !== id
-            )
-
+            currentItems.filter((item) => item.id !== id)
         );
 
     };
 
-
-    // ==============================
-    // VIDER LE PANIER
-    // ==============================
-
+    // Vider le panier
     const clearCart = () => {
-
         setCartItems([]);
-
     };
 
-
-    // ==============================
-    // NOMBRE TOTAL D'ARTICLES
-    // ==============================
-
+    // Nombre total d'articles
     const cartCount = cartItems.reduce(
-
-        (total, item) =>
-
-            total +
-            Number(item.quantity),
-
+        (total, item) => total + Number(item.quantity),
         0
-
     );
 
-
-    // ==============================
-    // TOTAL DU PANIER
-    // ==============================
-
+    // Total avec les prix promotionnels
     const cartTotal = cartItems.reduce(
-
         (total, item) =>
-
             total +
-            Number(item.prix) *
-            Number(item.quantity),
-
+            Number(item.prix) * Number(item.quantity),
         0
-
     );
-
-
-    // ==============================
-    // CONTEXT
-    // ==============================
 
     return (
 
         <CartContext.Provider
             value={{
-
                 cartItems,
-
                 addToCart,
-
                 increaseQuantity,
-
                 decreaseQuantity,
-
                 removeFromCart,
-
                 clearCart,
-
                 cartCount,
-
                 cartTotal,
-
-                // Notification
                 notification,
-
                 setNotification
-
             }}
         >
-
             {children}
-
         </CartContext.Provider>
 
     );
 
 }
 
-
-// ==============================
-// HOOK PERSONNALISÉ
-// ==============================
-
 export function useCart() {
-
     return useContext(CartContext);
-
 }
