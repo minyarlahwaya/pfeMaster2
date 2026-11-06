@@ -1008,10 +1008,10 @@ module.exports.updateStatutCommande = async (req, res) => {
         // ========================================
 
         const statutsAutorises = [
-            "en attente",
+            "attente",
             "confirmée",
             "en préparation",
-            "récupérée",
+            "récupéréen e",
             "annulée"
         ];
 
