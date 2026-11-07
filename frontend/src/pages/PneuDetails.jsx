@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import PneuDetail from "../components/pneus/PneuDetail";
-import Footer from "../components/Footer/Footer";
 
 import { getPneuById } from "../services/pneuApi";
 

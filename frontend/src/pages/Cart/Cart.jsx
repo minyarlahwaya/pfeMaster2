@@ -63,7 +63,7 @@ function Cart() {
 
                 setUser(response.data.user);
 
-            } catch (error) {
+            } catch {
 
                 console.log("Aucun utilisateur connecté.");
 

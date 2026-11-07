@@ -6,7 +6,6 @@ import TireSearch from "../components/TireSearch/TireSearch";
 import Features from "../components/Features/Feature";
 import Brands from "../components/Brands/Brands";
 import Products from "../components/Products/Products";
-import Footer from "../components/Footer/Footer";
 import AvisList from "../components/Avis/AvisList";
 
 function Home() {

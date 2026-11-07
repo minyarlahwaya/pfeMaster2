@@ -23,6 +23,7 @@ import {
 import { getAvisByCommande } from "../../services/avisApi";
 
 import AvisForm from "../../components/Avis/AvisForm";
+import { API_URL } from "../../config";
 
 
 function CommandeDetails() {
@@ -471,7 +472,7 @@ function CommandeDetails() {
                                             {item.pneu?.image ? (
 
                                                 <img
-                                                    src={`http://localhost:5001/uploadPneu/${item.pneu.image}`}
+                                                    src={`${API_URL}/uploadPneu/${item.pneu.image}`}
                                                     alt={
                                                         item.pneu?.modele ||
                                                         "Pneu"

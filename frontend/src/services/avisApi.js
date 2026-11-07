@@ -1,7 +1,8 @@
 
+import { API_URL } from "../config";
 import axios from "axios";
 
-const apiURL = "http://localhost:5001/avis";
+const apiURL = `${API_URL}/avis`;
 
 // Ajouter un avis
 export const createAvis = async (avisData) => {

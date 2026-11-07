@@ -34,7 +34,6 @@ import Notification from "./components/Notification/Notification";
 
 import CommandeDetails from "./pages/CommandeDetails/CommandeDetails";
 import MesCommandes from "./components/CommandesPanier/MesCommandes";
-import CommandeDetailss from "./components/CommandesPanier/CommandeDetailss";
 
 import Promotions from "./components/pneus/Promotions";
 import MesReclamations from "./components/Reclamation/MesReclamations";

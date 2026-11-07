@@ -17,11 +17,7 @@ import {
     FaSearch,
     FaTimes,
     FaBriefcase,
-    FaIdCard,
-    FaMoneyBillWave,
-    FaExclamationTriangle,
-    FaChartLine,
-    FaClipboardList
+    FaIdCard
 } from "react-icons/fa";
 
 import {
@@ -30,20 +26,6 @@ import {
     deleteCommande,
     downloadFacturePDF
 } from "../../services/commandeApi";
-
-import {
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    PieChart,
-    Pie,
-    Cell,
-    Legend
-} from "recharts";
 
 import "./AdminCommandes.css";
 import { API_URL } from "../../config";

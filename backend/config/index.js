@@ -31,9 +31,13 @@ const toInt = (value, defaultValue) => {
 const unlessPlaceholder = (value) =>
     value && !/^replace_with/i.test(String(value).trim()) ? String(value).trim() : undefined;
 
-// Ancien secret codé en dur : conservé uniquement pour le développement
-// local afin de ne pas casser les sessions existantes.
-const DEV_JWT_SECRET = "net pneus secret";
+// Développement sans JWT_SECRET : secret aléatoire propre au processus
+// (sessions invalidées au redémarrage ; définir JWT_SECRET dans backend/.env).
+const DEV_JWT_SECRET = require("crypto").randomBytes(32).toString("hex");
+// Empreinte SHA-256 de l'ancien secret codé en dur, toujours refusé en production
+const LEGACY_JWT_SECRET_SHA256 = "e694db6e34449d4e6cdeedc79b4d174f6bae25e5bd4820b5ab9aabd2da53f339";
+const isLegacySecret = (value) =>
+    require("crypto").createHash("sha256").update(String(value)).digest("hex") === LEGACY_JWT_SECRET_SHA256;
 
 const config = {
     nodeEnv: NODE_ENV,
@@ -122,7 +126,7 @@ function validateConfig() {
     if (isProduction) {
         if (!env.JWT_SECRET) {
             errors.push("JWT_SECRET est obligatoire en production");
-        } else if (env.JWT_SECRET === DEV_JWT_SECRET || env.JWT_SECRET.length < 32) {
+        } else if (isLegacySecret(env.JWT_SECRET) || env.JWT_SECRET.length < 32) {
             errors.push("JWT_SECRET doit être un secret aléatoire d'au moins 32 caractères");
         }
 

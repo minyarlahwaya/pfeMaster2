@@ -1,12 +1,10 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./Products.css";
 import ProductCard from "./ProductCard";
 import { getAllPneus } from "../../services/pneuApi";
 
 function Products() {
-  const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

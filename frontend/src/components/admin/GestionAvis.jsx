@@ -20,8 +20,9 @@ import {
 } from "../../services/avisApi";
 
 import "./GestionAvis.css";
+import { API_URL } from "../../config";
 
-const IMAGE_URL = "http://localhost:5001/uploadPneu/";
+const IMAGE_URL = `${API_URL}/uploadPneu/`;
 
 function GestionAvis() {
 
