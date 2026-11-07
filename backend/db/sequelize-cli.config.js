@@ -1,6 +1,7 @@
 // Configuration utilisée par sequelize-cli (npm run db:migrate).
 // Mêmes variables que l'application : voir config/index.js.
 const config = require("../config");
+const { dialectOptions } = require("./ssl");
 
 const { db } = config;
 
@@ -13,9 +14,7 @@ const connection = {
     dialect: "postgres",
     logging: false,
     migrationStorageTableName: "SequelizeMeta",
-    dialectOptions: db.ssl
-        ? { ssl: { require: true, rejectUnauthorized: db.sslRejectUnauthorized } }
-        : {}
+    dialectOptions: dialectOptions()
 };
 
 module.exports = {

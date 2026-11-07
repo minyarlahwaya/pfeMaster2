@@ -5,3 +5,7 @@ node_modules/
 .env.*
 !.env.example
 certs/
+# Exception : certificat racine Supabase (public), requis par le pipeline
+!certs/
+certs/*
+!certs/prod-ca-2021.crt

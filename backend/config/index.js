@@ -63,6 +63,11 @@ const config = {
         port: toInt(env.DB_PORT, 5432),
         ssl: toBool(env.DB_SSL, false),
         sslRejectUnauthorized: toBool(env.DB_SSL_REJECT_UNAUTHORIZED, true),
+        // Certificat CA (Supabase : certs/prod-ca-2021.crt). Chemin relatif
+        // résolu depuis backend/, quel que soit le répertoire courant.
+        sslCaPath: env.DB_SSL_CA_PATH
+            ? path.resolve(path.join(__dirname, ".."), env.DB_SSL_CA_PATH)
+            : undefined,
         poolMax: toInt(env.DB_POOL_MAX, 10),
         // alter : comportement historique (modifie le schéma au démarrage)
         // safe  : crée uniquement les tables manquantes
@@ -104,6 +109,10 @@ function validateConfig() {
 
     for (const key of ["DB_NAME", "DB_USER", "DB_PASSWORD"]) {
         if (!env[key]) errors.push(`${key} est obligatoire`);
+    }
+
+    if (config.db.sslCaPath && !require("fs").existsSync(config.db.sslCaPath)) {
+        errors.push(`DB_SSL_CA_PATH introuvable : ${config.db.sslCaPath}`);
     }
 
     if (!["alter", "safe", "none"].includes(config.db.sync)) {

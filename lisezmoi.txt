@@ -1,4 +1,23 @@
-LANDOLSI TIRES - Sauvegarde chiffrée de la base et restauration CI/CD
+LANDOLSI TIRES - Base de données Supabase et pipeline CI/CD
+===========================================================
+
+NOUVEAU (7 novembre 2026)
+- La base est désormais hébergée sur Supabase (PostgreSQL 17 managé).
+  Plus de PostgreSQL local, plus de sauvegarde chiffrée à restaurer :
+  le site et le pipeline se connectent directement à Supabase.
+- Connexion : session pooler aws-0-eu-central-2.pooler.supabase.com:5432,
+  TLS vérifié avec backend/certs/prod-ca-2021.crt (DB_SSL_CA_PATH).
+- Pipeline : .github/workflows/ci-cd.yml ("CI/CD Supabase")
+    tests backend + build frontend -> migrations sur Supabase
+    -> contrôle des tables/données -> démarrage API et /health.
+  Secrets GitHub : SUPABASE_DB_HOST, SUPABASE_DB_PORT, SUPABASE_DB_NAME,
+  SUPABASE_DB_USER, SUPABASE_DB_PASSWORD.
+  Relancer : gh workflow run ci-cd.yml --repo ngrassa/pfeMaster2 --ref develop-landolsi
+- L'ancien workflow db-restore.yml est supprimé. Les sections ci-dessous
+  sont conservées pour l'historique uniquement.
+
+=======================================================================
+(HISTORIQUE) LANDOLSI TIRES - Sauvegarde chiffrée de la base et restauration CI/CD
 =======================================================================
 
 0. OÙ EN EST-ON ? (état au 31 octobre 2026)
