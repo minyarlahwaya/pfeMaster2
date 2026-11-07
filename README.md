@@ -38,6 +38,7 @@ Application web responsive réalisée dans le cadre du projet de fin d'études (
 - PostgreSQL local et procédure sauvegarde/restauration abandonnés : l'application et le pipeline CI/CD se connectent directement au PostgreSQL managé **Supabase** (session pooler, port 5432, TLS vérifié avec `backend/certs/prod-ca-2021.crt`).
 - `backend/db/ssl.js` : options TLS communes à l'API et à `sequelize-cli` (les migrations utilisent désormais aussi le certificat CA). `DB_SSL_CA_PATH` relatif est résolu depuis `backend/`.
 - Nouveau workflow `.github/workflows/ci-cd.yml` (tests, build frontend, migrations sur Supabase, contrôle des données et de `/health`). L'ancien `db-restore.yml` est supprimé.
+- Migration `20261107140000-dedupe-unique-constraints.js` : supprime les 437 contraintes UNIQUE en double laissées par l'ancien `sync({ alter: true })` (124 copies de `users.email`, `Marques.nom`, `Vehicules.immatriculation`, 69 de `factures.numeroFacture`). Aucune donnée modifiée.
 
 Travail de préparation au déploiement cloud (octobre 2026). Le fonctionnement métier (catalogue, panier, commandes, factures, avis, réclamations, chatbot, Telegram) est inchangé ; les modifications portent sur la compatibilité Linux, la sécurité, la configuration, la base de données et le déploiement. Détail et justification : [`docs/deployment/readme-recommendations.md`](docs/deployment/readme-recommendations.md) et [`docs/deployment/readiness-report.md`](docs/deployment/readiness-report.md).
 
