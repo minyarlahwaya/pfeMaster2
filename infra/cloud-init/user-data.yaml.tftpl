@@ -14,7 +14,13 @@ packages:
 runcmd:
 %{ if git_repo_url != "" ~}
   - [ bash, -c, "set -euo pipefail; git clone --branch '${git_ref}' --depth 1 '${git_repo_url}' /opt/landolsi-src" ]
+%{ if external_db ~}
+  # Base Supabase : pas de PostgreSQL local. Le pipeline CI/CD configure la base
+  # (scripts/configure-db.sh) puis déploie (scripts/deploy.sh).
+  - [ bash, -c, "set -euo pipefail; /opt/landolsi-src/scripts/install.sh --external-db" ]
+%{ else ~}
   - [ bash, -c, "set -euo pipefail; /opt/landolsi-src/scripts/install.sh && /opt/landolsi-src/scripts/deploy.sh --source /opt/landolsi-src" ]
+%{ endif ~}
 %{ else ~}
   - [ bash, -c, "echo 'git_repo_url vide : installation manuelle (docs/deployment/aws-academy-deployment.md)' > /etc/motd.d/landolsi 2>/dev/null || true" ]
 %{ endif ~}

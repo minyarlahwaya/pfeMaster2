@@ -113,8 +113,16 @@ cp -n "$RELEASE"/backend/public/uploadPneu/* "$UPLOAD_DIR"/ 2>/dev/null || true
 # -----------------------------------------------------
 # 4. Sauvegarde puis migrations
 # -----------------------------------------------------
+case "${DB_HOST:-localhost}" in
+    localhost|127.0.0.1|::1) EXTERNAL_DB=0 ;;
+    *) EXTERNAL_DB=1 ;;
+esac
 if (( SKIP_BACKUP )); then
     warn "sauvegarde pré-migration ignorée (--skip-backup)"
+elif (( EXTERNAL_DB )); then
+    # Base managée (Supabase) : sauvegardes assurées par le fournisseur,
+    # pas de pg_dump local (version du client différente du serveur).
+    log "Base externe (${DB_HOST}) : sauvegarde pré-migration assurée par le fournisseur."
 else
     log "Sauvegarde de la base avant migration..."
     as_app "$RELEASE/scripts/backup-db.sh" --env-file "$APP_ENV_FILE" --output-dir "$BACKUP_DIR" \

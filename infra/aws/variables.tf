@@ -107,3 +107,32 @@ variable "git_ref" {
   type        = string
   default     = "master"
 }
+
+variable "enable_observability" {
+  description = "Créer les alarmes CloudWatch et le tableau de bord (observability.tf)."
+  type        = bool
+  default     = true
+}
+
+variable "alarm_sns_topic_arn" {
+  description = "ARN de la rubrique SNS notifiée par les alarmes (créée hors Terraform par le pipeline). Vide = alarmes sans notification."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.alarm_sns_topic_arn == "" || can(regex("^arn:aws:sns:", var.alarm_sns_topic_arn))
+    error_message = "alarm_sns_topic_arn doit être un ARN SNS (arn:aws:sns:...)."
+  }
+}
+
+variable "cloudwatch_namespace" {
+  description = "Espace de noms des métriques personnalisées (agent CloudWatch, filtres de journaux)."
+  type        = string
+  default     = "LandolsiTires"
+}
+
+variable "external_db" {
+  description = "Base PostgreSQL managée (Supabase) : aucun PostgreSQL installé sur la VM ; le pipeline configure la base puis déploie."
+  type        = bool
+  default     = true
+}

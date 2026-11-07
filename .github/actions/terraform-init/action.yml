@@ -1,0 +1,98 @@
+# Action composite partagée par cicd.yml et destroy.yml :
+#   1. authentifie le runner auprès d'AWS (identifiants temporaires AWS Academy) ;
+#   2. calcule le nom du bucket S3 qui contient l'état Terraform ;
+#   3. installe Terraform et l'initialise sur ce backend S3 distant.
+#
+# Pourquoi un état distant ? Les runners GitHub sont éphémères : un état local
+# (terraform.tfstate) disparaîtrait à la fin du job et le pipeline « Destroy »
+# ne saurait plus quelles ressources supprimer. Le bucket est créé par le job
+# « AWS : prérequis » du pipeline CI/CD (versionné, chiffré, privé).
+# Le verrou est un objet .tflock dans le même bucket (use_lockfile, Terraform >= 1.10),
+# sans DynamoDB.
+#
+# Le fichier ci_backend_override.tf n'est créé QUE dans le runner : l'usage local
+# décrit dans le README (état local) reste inchangé.
+
+name: Terraform init (backend S3)
+description: Identifiants AWS, bucket d'état et terraform init
+
+inputs:
+  aws-access-key-id:
+    required: true
+  aws-secret-access-key:
+    required: true
+  aws-session-token:
+    required: false
+    default: ""
+  aws-region:
+    required: true
+  terraform-version:
+    required: true
+  project:
+    required: true
+  init:
+    description: "false = seulement les identifiants AWS (pas de terraform init)"
+    required: false
+    default: "true"
+
+outputs:
+  account-id:
+    description: Identifiant du compte AWS
+    value: ${{ steps.ids.outputs.account_id }}
+  state-bucket:
+    description: Bucket S3 de l'état Terraform
+    value: ${{ steps.ids.outputs.bucket }}
+
+runs:
+  using: composite
+  steps:
+    - name: Identifiants AWS (session temporaire)
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-session-token: ${{ inputs.aws-session-token }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - name: Compte AWS et bucket d'état
+      id: ids
+      shell: bash
+      env:
+        PROJECT: ${{ inputs.project }}
+        REGION: ${{ inputs.aws-region }}
+      run: |
+        if ! account_id="$(aws sts get-caller-identity --query Account --output text 2>"$RUNNER_TEMP/sts.err")"; then
+          cat "$RUNNER_TEMP/sts.err" >&2
+          echo "::error title=Identifiants AWS invalides ou expirés::La session AWS Academy dure environ 4 h. Learner Lab > AWS Details > AWS CLI : recopier aws_access_key_id, aws_secret_access_key et aws_session_token dans les secrets du dépôt (Settings > Secrets and variables > Actions)."
+          exit 1
+        fi
+        echo "account_id=$account_id" >> "$GITHUB_OUTPUT"
+        echo "bucket=${PROJECT}-tfstate-${account_id}-${REGION}" >> "$GITHUB_OUTPUT"
+
+    - name: Installer Terraform
+      if: inputs.init == 'true'
+      uses: hashicorp/setup-terraform@v4
+      with:
+        terraform_version: ${{ inputs.terraform-version }}
+        terraform_wrapper: false
+
+    - name: terraform init (état distant S3)
+      if: inputs.init == 'true'
+      shell: bash
+      working-directory: infra/aws
+      env:
+        BUCKET: ${{ steps.ids.outputs.bucket }}
+        REGION: ${{ inputs.aws-region }}
+        PROJECT: ${{ inputs.project }}
+      run: |
+        cat > ci_backend_override.tf <<'EOF'
+        terraform {
+          backend "s3" {}
+        }
+        EOF
+        terraform init -input=false -no-color \
+          -backend-config="bucket=${BUCKET}" \
+          -backend-config="key=${PROJECT}/terraform.tfstate" \
+          -backend-config="region=${REGION}" \
+          -backend-config="encrypt=true" \
+          -backend-config="use_lockfile=true"

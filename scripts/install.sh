@@ -48,6 +48,17 @@ done
 [[ -z "$PG_CLIENT_VERSION" || "$PG_CLIENT_VERSION" =~ ^[0-9]+$ ]] || die "--pg-client-version invalide" 2
 if [[ -n "$EMAIL" && -z "$DOMAIN" ]]; then die "--email nécessite --domain" 2; fi
 
+# Base déjà configurée sur un hôte distant (Supabase, via scripts/configure-db.sh) :
+# mode --external-db automatique, pour qu'une réinstallation ne la remplace jamais
+# par un PostgreSQL local.
+if (( LOCAL_DB )) && [[ -r "$APP_ENV_FILE" ]]; then
+    existing_host="$(sed -n 's/^DB_HOST=//p' "$APP_ENV_FILE" | tail -1 | tr -d "\"' ")"
+    case "$existing_host" in
+        ""|localhost|127.0.0.1|::1) ;;
+        *) log "Base externe détectée ($existing_host) : PostgreSQL local non installé."; LOCAL_DB=0 ;;
+    esac
+fi
+
 . /etc/os-release
 [[ "${ID:-}" == "ubuntu" ]] || die "système non pris en charge : ${PRETTY_NAME:-inconnu} (Ubuntu requis)"
 case "${VERSION_ID:-}" in
@@ -163,6 +174,9 @@ if (( LOCAL_DB )); then
     load_env_file "$APP_ENV_FILE" '^DB_'
     DB_NAME="${DB_NAME:-landolsi_tires}"
     DB_USER="${DB_USER:-landolsi}"
+    # Valeurs Supabase de .env.example (postgres / postgres.<project-ref>) : base locale dédiée
+    [[ "$DB_USER" =~ ^[a-z_][a-z0-9_]*$ && "$DB_USER" != postgres ]] || DB_USER=landolsi
+    [[ "$DB_NAME" != postgres ]] || DB_NAME=landolsi_tires
     [[ "$DB_NAME" =~ ^[a-z_][a-z0-9_]*$ && "$DB_USER" =~ ^[a-z_][a-z0-9_]*$ ]] \
         || die "DB_NAME/DB_USER doivent être en minuscules [a-z0-9_]"
 
@@ -218,6 +232,7 @@ systemctl enable --now landolsi-backup.timer >/dev/null
 # 9. Nginx
 # -----------------------------------------------------
 log "Configuration de Nginx..."
+install -m 0644 "$REPO_DIR/nginx/security-headers.conf" /etc/nginx/snippets/landolsi-security-headers.conf
 install -m 0644 "$REPO_DIR/nginx/landolsi.conf" /etc/nginx/sites-available/landolsi
 ln -sfn /etc/nginx/sites-available/landolsi /etc/nginx/sites-enabled/landolsi
 rm -f /etc/nginx/sites-enabled/default   # lien symbolique uniquement; le fichier d'origine reste dans sites-available

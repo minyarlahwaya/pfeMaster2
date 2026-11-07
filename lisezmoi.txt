@@ -7,12 +7,18 @@ NOUVEAU (7 novembre 2026)
   le site et le pipeline se connectent directement à Supabase.
 - Connexion : session pooler aws-0-eu-central-2.pooler.supabase.com:5432,
   TLS vérifié avec backend/certs/prod-ca-2021.crt (DB_SSL_CA_PATH).
-- Pipeline : .github/workflows/ci-cd.yml ("CI/CD Supabase")
-    tests backend + build frontend -> migrations sur Supabase
-    -> contrôle des tables/données -> démarrage API et /health.
+- Pipeline complet : .github/workflows/cicd.yml (repris de projet_Landolsi)
+    qualité, tests (base jetable), contrôle Supabase, build, Gitleaks
+    -> VM AWS (Terraform) -> install.sh --external-db -> configure-db.sh
+    (Supabase) -> deploy.sh (migrations) -> tests de fumée, CloudWatch
+    -> CodeQL, Semgrep, SCA, IaC, DAST -> notification e-mail.
+  Déclenchement : "[deploy]" ou "[ci]" dans le TITRE du commit poussé sur
+  master, ou Actions > Run workflow.
+- Destroy : .github/workflows/destroy.yml (Run workflow, saisir DESTROY) ;
+  archive uniquement les images téléversées, la base Supabase reste intacte.
   Secrets GitHub : SUPABASE_DB_HOST, SUPABASE_DB_PORT, SUPABASE_DB_NAME,
   SUPABASE_DB_USER, SUPABASE_DB_PASSWORD.
-  Relancer : gh workflow run ci-cd.yml --repo ngrassa/pfeMaster2 --ref develop-landolsi
+  Relancer : gh workflow run cicd.yml --repo ngrassa/pfeMaster2 --ref master
 - L'ancien workflow db-restore.yml est supprimé. Les sections ci-dessous
   sont conservées pour l'historique uniquement.
 

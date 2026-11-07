@@ -1,0 +1,8 @@
+# Règles OWASP ZAP : identifiant<TAB>IGNORE|WARN|FAIL<TAB>justification
+# Seules les règles listées ici changent de niveau ; la porte du pipeline bloque
+# toute alerte de risque ÉLEVÉ (riskcode 3), quel que soit ce fichier.
+10096	IGNORE	(Horodatage dans les bundles Vite minifiés : faux positif)
+10027	IGNORE	(Commentaires « suspects » dans les bibliothèques minifiées)
+10109	IGNORE	(Information : application web moderne détectée)
+10049	IGNORE	(Information : contenu non stockable en cache)
+90004	WARN	(Spectre / isolement inter-origines : en-têtes COOP/COEP non requis)

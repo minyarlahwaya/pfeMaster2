@@ -1,0 +1,20 @@
+# Configuration Checkov (job « 2.5 Sécurité IaC » du pipeline CI/CD, BLOQUANT).
+# Exceptions JUSTIFIÉES par le contexte (AWS Academy, site web public sur une
+# instance unique) ; toutes les autres règles restent actives.
+compact: true
+quiet: true
+skip-check:
+  # Profil IAM : création de rôles interdite dans AWS Academy (LabInstanceProfile facultatif)
+  - CKV2_AWS_41
+  # Surveillance détaillée CloudWatch (payante) : non nécessaire pour un PFE
+  - CKV_AWS_126
+  # Famille t3 : optimisée EBS par défaut (l'attribut ebs_optimized est sans effet)
+  - CKV_AWS_135
+  # Serveur web public : IP publique (élastique) indispensable, seuls 80/443 sont ouverts
+  - CKV_AWS_88
+  # Groupe créé par Terraform seulement hors AWS Academy, toujours attaché à l'instance
+  - CKV2_AWS_5
+  # HTTP/HTTPS publics : site web ouvert à Internet par nature (port 80 redirigé vers 443)
+  - CKV_AWS_260
+  # Entrées workflow_dispatch = options de déploiement/destruction (pas des paramètres de build SLSA)
+  - CKV_GHA_7

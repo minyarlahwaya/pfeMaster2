@@ -109,6 +109,7 @@ resource "aws_instance" "app" {
     git_repo_url   = var.git_repo_url
     git_ref        = var.git_ref
     ssh_public_key = var.ssh_public_key
+    external_db    = var.external_db
   })
 
   # IMDSv2 obligatoire
@@ -130,7 +131,7 @@ resource "aws_instance" "app" {
 
   lifecycle {
     # Une nouvelle AMI ou un user_data modifié ne doit pas recréer l'instance
-    # (ce qui détruirait la base locale).
+    # (ce qui supprimerait les images téléversées).
     ignore_changes = [ami, user_data]
   }
 }
