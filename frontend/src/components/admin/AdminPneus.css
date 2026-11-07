@@ -1,4 +1,3 @@
-
 /* ========================================
    PAGE
 ======================================== */
@@ -8,7 +7,6 @@
     padding: 30px;
     background-color: #f5f5f5;
 }
-
 
 /* ========================================
    HEADER
@@ -34,16 +32,12 @@
     color: #777;
     font-size: 14px;
 }
-/* ========================================
-   BOUTONS DU HEADER
-======================================== */
 
 .admin-pneus-header-actions {
     display: flex;
     align-items: center;
     gap: 20px;
 }
-
 
 /* ========================================
    BOUTON DASHBOARD
@@ -54,17 +48,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     border: none;
     background-color: #333;
     color: white;
-
     padding: 11px 17px;
     border-radius: 6px;
-
     font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
     transition: 0.2s;
 }
@@ -77,7 +67,6 @@
     font-size: 14px;
 }
 
-
 /* ========================================
    BOUTON AJOUTER
 ======================================== */
@@ -87,17 +76,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     border: none;
     background-color: #e30613;
     color: white;
-
     padding: 11px 17px;
     border-radius: 6px;
-
     font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
     transition: 0.2s;
 }
@@ -110,6 +95,72 @@
     font-size: 14px;
 }
 
+/* ========================================
+   RECHERCHE PAR MARQUE
+======================================== */
+
+.recherche-marque-section {
+    margin-bottom: 20px;
+}
+
+.recherche-marque-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.recherche-marque-box:focus-within {
+    border-color: #e30613;
+    box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.1);
+}
+
+.recherche-marque-icon {
+    position: absolute;
+    left: 16px;
+    color: #999;
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.recherche-marque-box input {
+    width: 100%;
+    padding: 14px 46px 14px 44px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #333;
+    font-size: 14px;
+}
+
+.recherche-marque-box input:focus {
+    outline: none;
+}
+
+.btn-effacer-recherche {
+    position: absolute;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background-color: #eeeeee;
+    color: #555;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-effacer-recherche:hover {
+    background-color: #e30613;
+    color: white;
+}
 
 /* ========================================
    NOMBRE DE PNEUS
@@ -119,16 +170,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     background-color: white;
-
     border-left: 4px solid #e30613;
-
     padding: 15px 18px;
     margin-bottom: 25px;
-
     border-radius: 7px;
-
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -142,21 +188,16 @@
     font-size: 22px;
 }
 
-
 /* ========================================
    GRILLE
 ======================================== */
 
 .admin-pneus-grid {
     display: grid;
-
     grid-template-columns: repeat(4, minmax(0, 1fr));
-
     gap: 20px;
-
     width: 100%;
 }
-
 
 /* ========================================
    CARTE PNEU
@@ -164,22 +205,16 @@
 
 .admin-pneu-card {
     background-color: white;
-
     border-radius: 10px;
-
     overflow: hidden;
-
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
     transition: 0.2s;
 }
 
 .admin-pneu-card:hover {
     transform: translateY(-3px);
-
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
 }
-
 
 /* ========================================
    IMAGE
@@ -187,27 +222,18 @@
 
 .admin-pneu-image-container {
     width: 100%;
-
     height: 125px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     background-color: white;
-
     padding: 8px;
 }
 
 .admin-pneu-image {
     width: 110px;
-
     height: 95px;
-
     object-fit: contain;
-
     display: block;
 }
 
@@ -215,7 +241,6 @@
     color: #999;
     font-size: 12px;
 }
-
 
 /* ========================================
    CONTENU
@@ -227,28 +252,19 @@
 
 .admin-pneu-content h3 {
     margin: 0 0 4px;
-
     color: #222;
-
     font-size: 16px;
-
     font-weight: 700;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 .admin-pneu-marque {
     margin: 0 0 10px;
-
     color: #777;
-
     font-size: 13px;
 }
-
 
 /* ========================================
    DIMENSION + SAISON
@@ -256,32 +272,21 @@
 
 .admin-pneu-details {
     display: flex;
-
     align-items: center;
-
     gap: 6px;
-
     margin-bottom: 12px;
 }
 
 .admin-pneu-details span {
     background-color: #f3f3f3;
-
     color: #555;
-
     padding: 5px 7px;
-
     border-radius: 4px;
-
     font-size: 11px;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
-
 
 /* ========================================
    PRIX + STOCK
@@ -289,24 +294,17 @@
 
 .admin-pneu-bottom {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 8px;
-
     margin-bottom: 12px;
 }
 
 .admin-pneu-bottom strong {
     color: #e30613;
-
     font-size: 17px;
-
     font-weight: 700;
 }
-
 
 /* ========================================
    STOCK
@@ -315,19 +313,12 @@
 .stock-disponible,
 .stock-rupture {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     padding: 5px 7px;
-
     border-radius: 20px;
-
     font-size: 10px;
-
     font-weight: 600;
-
     white-space: nowrap;
 }
 
@@ -341,23 +332,17 @@
     color: #c62828;
 }
 
-
 /* ========================================
    ACTIONS
 ======================================== */
 
 .actions-pneu {
     display: flex;
-
     justify-content: flex-end;
-
     gap: 8px;
-
     padding-top: 10px;
-
     border-top: 1px solid #eeeeee;
 }
-
 
 /* ========================================
    BOUTONS ICONES
@@ -367,25 +352,15 @@
 .btn-supprimer {
     width: 34px;
     height: 34px;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     border: none;
-
     border-radius: 5px;
-
     cursor: pointer;
-
     font-size: 13px;
-
     transition: 0.2s;
 }
-
-
-/* MODIFIER */
 
 .btn-modifier {
     background-color: #eeeeee;
@@ -396,9 +371,6 @@
     background-color: #dddddd;
 }
 
-
-/* SUPPRIMER */
-
 .btn-supprimer {
     background-color: #e30613;
     color: white;
@@ -408,25 +380,18 @@
     background-color: #c40510;
 }
 
-
 /* ========================================
    AUCUN PNEU
 ======================================== */
 
 .aucun-pneu {
     grid-column: 1 / -1;
-
     text-align: center;
-
     padding: 50px 20px;
-
     background-color: white;
-
     border-radius: 8px;
-
     color: #888;
 }
-
 
 /* ========================================
    CHARGEMENT
@@ -434,65 +399,365 @@
 
 .admin-pneus-loading {
     text-align: center;
-
     padding: 80px 20px;
-
     color: #666;
-
     font-size: 16px;
 }
 
-
 /* ========================================
-   ERREUR
+   ERREUR GÉNÉRALE
 ======================================== */
 
 .admin-pneus-error {
     padding: 20px;
-
     background-color: #ffebee;
-
     color: #c62828;
-
     border-radius: 6px;
-
     font-size: 14px;
 }
 
+/* ========================================
+   IMPORT EXCEL
+======================================== */
+
+.import-excel-section {
+    background: #fff;
+    padding: 22px;
+    margin: 25px 0;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.import-excel-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #d62828;
+}
+
+.import-excel-title > svg {
+    font-size: 35px;
+    flex-shrink: 0;
+}
+
+.import-excel-title h2 {
+    color: #333;
+    margin: 0 0 5px;
+    font-size: 21px;
+}
+
+.import-excel-title p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
 
 /* ========================================
-   4 → 3 PNEUS
+   CONTRÔLES IMPORT EXCEL
+======================================== */
+
+.import-excel-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.import-excel-controls input {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    background: #fff;
+    color: #444;
+}
+
+.import-excel-controls input:focus {
+    outline: none;
+    border-color: #e30613;
+    box-shadow: 0 0 0 2px rgba(227, 6, 19, 0.1);
+}
+
+/* ========================================
+   BOUTONS EXCEL
+======================================== */
+
+.btn-preview-excel,
+.btn-import-excel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #c62828;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-preview-excel:hover,
+.btn-import-excel:hover {
+    background: #a91f1f;
+}
+
+.btn-preview-excel:disabled,
+.btn-import-excel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-import-excel {
+    margin-top: 15px;
+}
+
+/* ========================================
+   NOM DU FICHIER
+======================================== */
+
+.excel-file-name {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+/* ========================================
+   RÉSULTAT PRÉVISUALISATION
+======================================== */
+
+.excel-preview-result {
+    margin-top: 25px;
+    padding: 25px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.excel-preview-result h3 {
+    margin-bottom: 20px;
+    color: #252525;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.excel-preview-success,
+.excel-preview-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.excel-preview-success {
+    color: #16834a;
+    background: #eaf8f0;
+}
+
+.excel-preview-error {
+    color: #c62828;
+    background: #fff0f0;
+}
+
+/* ========================================
+   CARTES RÉCAPITULATIVES
+======================================== */
+
+.excel-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.excel-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px;
+    border-radius: 10px;
+    background: #f7f7f7;
+    min-width: 0;
+}
+
+.excel-summary-card > svg {
+    font-size: 25px;
+    flex-shrink: 0;
+}
+
+.excel-summary-card div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.excel-summary-card strong {
+    font-size: 24px;
+}
+
+.excel-summary-card span {
+    font-size: 13px;
+    color: #666;
+}
+
+.excel-summary-card.success {
+    color: #16834a;
+    background: #eaf8f0;
+}
+
+.excel-summary-card.update {
+    color: #2563a6;
+    background: #edf5ff;
+}
+
+.excel-summary-card.total {
+    color: #555;
+    background: #f1f1f1;
+}
+
+/* ========================================
+   LISTES DES PNEUS
+======================================== */
+
+.excel-result-group {
+    margin-top: 25px;
+}
+
+.excel-result-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.excel-result-title.success {
+    color: #16834a;
+}
+
+.excel-result-title.update {
+    color: #2563a6;
+}
+
+.excel-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 13px;
+    margin-bottom: 8px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.excel-result-item > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.excel-result-item strong {
+    color: #333;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.excel-result-item span,
+.excel-result-item small {
+    color: #777;
+    font-size: 12px;
+}
+
+.excel-result-message.success {
+    color: #16834a;
+}
+
+.excel-result-message.update {
+    color: #2563a6;
+}
+
+/* ========================================
+   AVERTISSEMENT STOCK
+======================================== */
+
+.excel-preview-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 22px 0;
+    padding: 14px;
+    background: #fff8e8;
+    color: #8a6414;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.excel-preview-warning svg {
+    flex-shrink: 0;
+}
+
+/* ========================================
+   ERREURS ET DOUBLONS EXCEL
+======================================== */
+
+.excel-error-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px;
+    margin-bottom: 7px;
+    background: #fff0f0;
+    color: #c62828;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.excel-error-item svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ========================================
+   RESPONSIVE : TABLETTE
 ======================================== */
 
 @media (max-width: 1100px) {
-
     .admin-pneus-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-
 }
 
-
 /* ========================================
-   3 → 2 PNEUS
+   RESPONSIVE : PETITE TABLETTE
 ======================================== */
 
 @media (max-width: 850px) {
-
     .admin-pneus-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 15px;
     }
-
 }
 
-
 /* ========================================
-   MOBILE : 1 PNEU
+   RESPONSIVE : MOBILE
 ======================================== */
 
 @media (max-width: 600px) {
-
     .admin-pneus-page {
         padding: 20px 15px;
     }
@@ -510,7 +775,15 @@
         font-size: 13px;
     }
 
-    .btn-ajouter-pneu {
+    .admin-pneus-header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .btn-ajouter-pneu,
+    .btn-retour-dashboard {
         width: 100%;
     }
 
@@ -519,15 +792,43 @@
         gap: 15px;
     }
 
-}
+    .import-excel-section {
+        padding: 15px;
+    }
 
+    .import-excel-controls {
+        flex-direction: column;
+    }
+
+    .import-excel-controls input,
+    .import-excel-controls button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .excel-preview-result {
+        padding: 15px;
+    }
+
+    .excel-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .excel-result-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .excel-result-message {
+        line-height: 1.5;
+    }
+}
 
 /* ========================================
    PETIT MOBILE
 ======================================== */
 
 @media (max-width: 400px) {
-
     .admin-pneus-page {
         padding: 15px 10px;
     }
@@ -545,4 +846,271 @@
         height: 90px;
     }
 
+    .import-excel-title > svg {
+        font-size: 28px;
+    }
+
+    .import-excel-title h2 {
+        font-size: 18px;
+    }
+}
+/* ========================================
+   BOUTON DÉTAILS
+======================================== */
+
+.btn-details-pneu {
+    background: #e8e8e8;
+    color: #444;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-details-pneu:hover {
+    background: #c62828;
+    color: white;
+}
+
+
+/* ========================================
+   MODALE DÉTAILS
+======================================== */
+
+.details-pneu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.details-pneu-modal {
+    width: 100%;
+    max-width: 850px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.details-pneu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.details-pneu-header h2 {
+    margin: 0 0 5px;
+    color: #292929;
+    font-size: 22px;
+}
+
+.details-pneu-header p {
+    margin: 0;
+    color: #777;
+}
+
+.details-pneu-close {
+    background: #f1f1f1;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    color: #444;
+}
+
+.details-pneu-close:hover {
+    background: #c62828;
+    color: white;
+}
+
+.details-pneu-body {
+    padding: 22px 25px;
+}
+
+.details-pneu-image {
+    height: 170px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+    background: #fafafa;
+    border-radius: 8px;
+}
+
+.details-pneu-image img {
+    max-width: 220px;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+.details-pneu-image span {
+    color: #888;
+}
+
+.details-pneu-section {
+    margin-bottom: 22px;
+}
+
+.details-pneu-section h3 {
+    font-size: 17px;
+    color: #c62828;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.details-pneu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.details-pneu-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px;
+    background: #f7f7f7;
+    border-radius: 7px;
+    min-width: 0;
+}
+
+.details-pneu-grid span {
+    color: #777;
+    font-size: 13px;
+}
+
+.details-pneu-grid strong {
+    color: #333;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.details-pneu-grid .details-prix-vente {
+    color: #c62828;
+}
+
+.details-pneu-description {
+    background: #f7f7f7;
+    padding: 14px;
+    border-radius: 7px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.details-pneu-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px 25px;
+    border-top: 1px solid #eee;
+}
+
+.details-pneu-footer button {
+    background: #c62828;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    cursor: pointer;
+}
+
+.details-pneu-footer button:hover {
+    background: #a51f1f;
+}
+
+@media (max-width: 600px) {
+    .details-pneu-overlay {
+        padding: 10px;
+    }
+
+    .details-pneu-header,
+    .details-pneu-body {
+        padding: 16px;
+    }
+
+    .details-pneu-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* ========================================
+   ACTIONS DES PNEUS
+======================================== */
+
+.actions-pneu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px solid #eeeeee;
+}
+
+.actions-pneu-droite {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Style commun aux trois boutons */
+.actions-pneu .btn-action {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+/* Icône détails */
+.actions-pneu .btn-details {
+    background-color: #eeeeee;
+    color: #444;
+}
+
+.actions-pneu .btn-details:hover {
+    background-color: #e30613;
+    color: white;
+}
+
+/* Icône modifier */
+.actions-pneu .btn-edit {
+    background-color: #eeeeee;
+    color: #444;
+}
+
+.actions-pneu .btn-edit:hover {
+    background-color: #e30613;
+    color: white;
+}
+
+/* Icône archiver */
+.actions-pneu .btn-delete {
+    background-color: #e30613;
+    color: white;
+}
+
+.actions-pneu .btn-delete:hover {
+    background-color: #c40510;
+    color: white;
+}
+
+/* Taille des icônes */
+.actions-pneu .btn-action svg {
+    font-size: 14px;
 }

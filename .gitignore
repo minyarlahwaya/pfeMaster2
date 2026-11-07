@@ -28,3 +28,6 @@ backups/
 
 # Journaux
 *.log
+
+# Sauvegardes SQL locales de la base de données
+db/backup/*.sql

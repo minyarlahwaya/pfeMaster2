@@ -259,7 +259,7 @@
     border-color: #3b82f6;
 }
 
-.status-expediee {
+.status-recuperee {
     background: #f3eefe;
     color: #7c3aed;
     border-color: #8b5cf6;
@@ -1248,5 +1248,62 @@
 
     .commandes-search-actions {
         grid-column: auto;
+    }
+}
+
+
+/* ========================================
+   ONGLETS PARTICULIERS / PROFESSIONNELS
+======================================== */
+
+.commandes-type-tabs {
+    display: flex;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.commandes-type-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 17px;
+    background: #f1f1f1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #555;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.commandes-type-tab strong {
+    background: #ddd;
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.commandes-type-tab:hover {
+    border-color: #c62828;
+    color: #c62828;
+}
+
+.commandes-type-tab.active {
+    background: #c62828;
+    color: white;
+    border-color: #c62828;
+}
+
+.commandes-type-tab.active strong {
+    background: white;
+    color: #c62828;
+}
+
+@media (max-width: 600px) {
+    .commandes-type-tabs {
+        flex-direction: column;
     }
 }

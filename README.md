@@ -15,7 +15,7 @@ Application web responsive réalisée dans le cadre du projet de fin d'études (
 - [4. Architecture du dépôt](#4-architecture-du-dépôt)
 - [5. Prérequis](#5-prérequis)
 - [6. Récupérer le projet depuis une URL Git](#6-récupérer-le-projet-depuis-une-url-git)
-- [7. Configurer PostgreSQL](#7-configurer-postgresql)
+- [7. Base de données Supabase](#7-base-de-données-supabase)
 - [8. Configurer le backend](#8-configurer-le-backend)
 - [9. Configurer le frontend](#9-configurer-le-frontend)
 - [10. Démarrer l'application](#10-démarrer-lapplication)
@@ -32,6 +32,13 @@ Application web responsive réalisée dans le cadre du projet de fin d'études (
 - [20. Déploiement en production (AWS EC2 Ubuntu)](#20-déploiement-en-production-aws-ec2-ubuntu)
 
 ## 0. Modifications apportées au projet initial
+
+### Base de données Supabase (7 novembre 2026)
+
+- PostgreSQL local et procédure sauvegarde/restauration abandonnés : l'application et le pipeline CI/CD se connectent directement au PostgreSQL managé **Supabase** (session pooler, port 5432, TLS vérifié avec `backend/certs/prod-ca-2021.crt`).
+- `backend/db/ssl.js` : options TLS communes à l'API et à `sequelize-cli` (les migrations utilisent désormais aussi le certificat CA). `DB_SSL_CA_PATH` relatif est résolu depuis `backend/`.
+- Nouveau workflow `.github/workflows/ci-cd.yml` (tests, build frontend, migrations sur Supabase, contrôle des données et de `/health`). L'ancien `db-restore.yml` est supprimé.
+- Migration `20261107140000-dedupe-unique-constraints.js` : supprime les 437 contraintes UNIQUE en double laissées par l'ancien `sync({ alter: true })` (124 copies de `users.email`, `Marques.nom`, `Vehicules.immatriculation`, 69 de `factures.numeroFacture`). Aucune donnée modifiée.
 
 Travail de préparation au déploiement cloud (octobre 2026). Le fonctionnement métier (catalogue, panier, commandes, factures, avis, réclamations, chatbot, Telegram) est inchangé ; les modifications portent sur la compatibilité Linux, la sécurité, la configuration, la base de données et le déploiement. Détail et justification : [`docs/deployment/readme-recommendations.md`](docs/deployment/readme-recommendations.md) et [`docs/deployment/readiness-report.md`](docs/deployment/readiness-report.md).
 
@@ -293,13 +300,15 @@ git pull
 
 Ne partagez pas votre URL si elle contient un jeton d'accès. Pour envoyer vos changements, créez une branche, validez les fichiers non sensibles et ouvrez une pull request ou fusionnez selon les règles du dépôt.
 
-## 7. Configurer PostgreSQL
+## 7. Base de données Supabase
 
-1. Démarrez PostgreSQL.
-2. Créez une base dédiée au projet, par exemple `landolsi_tires`.
-3. Créez un utilisateur PostgreSQL réservé à l'application et donnez-lui les droits nécessaires sur cette base.
-4. Notez le nom de la base, l'utilisateur, le mot de passe, l'hôte et le port (souvent `localhost:5432`).
-5. Renseignez ces valeurs dans `backend/.env`.
+La base est hébergée sur Supabase : aucun PostgreSQL local, aucune sauvegarde à restaurer.
+
+1. Supabase > *Project Settings* > *Database* > *Connection string* > **Session pooler** : relevez l'hôte (`aws-0-<région>.pooler.supabase.com`), le port `5432`, la base `postgres`, l'utilisateur `postgres.<project-ref>` et le mot de passe.
+2. Renseignez-les dans `backend/.env` (modèle : `backend/.env.example`) avec `DB_SSL=true` et `DB_SSL_CA_PATH=./certs/prod-ca-2021.crt` (certificat racine Supabase, versionné).
+3. Appliquez les migrations : `cd backend && npm run db:migrate` (idempotentes, sans effet sur les tables existantes).
+4. Pipeline : déposez les secrets `SUPABASE_DB_HOST`, `SUPABASE_DB_PORT`, `SUPABASE_DB_NAME`, `SUPABASE_DB_USER`, `SUPABASE_DB_PASSWORD` dans le dépôt GitHub ; le workflow `CI/CD Supabase` migre et contrôle la base à chaque push.
+5. Serveur EC2 : `scripts/install.sh --external-db`, puis mêmes variables `DB_*` dans `/etc/landolsi/backend.env` (`DB_SSL_CA_PATH=/opt/landolsi/current/backend/certs/prod-ca-2021.crt`).
 
 Le comportement au démarrage dépend de `DB_SYNC` :
 
@@ -317,7 +326,7 @@ npm run db:migrate          # applique les migrations en attente
 npm run db:migrate:status   # état
 ```
 
-La première migration (`migrations/20261029000000-baseline-schema.js`) crée les tables manquantes sans modifier une base existante. Sauvegardez la base avant toute migration : `scripts/backup-db.sh --env-file backend/.env --output-dir backups`.
+La première migration (`migrations/20261029000000-baseline-schema.js`) crée les tables manquantes sans modifier une base existante. Supabase conserve des sauvegardes automatiques de la base (Dashboard > Database > Backups).
 
 Les tables sont définies par les modèles présents dans `backend/models/` et leurs associations dans `backend/models/associations.js`. Selon la version et l'état de la base, il peut être nécessaire de créer un compte administrateur et de charger les données initiales séparément.
 

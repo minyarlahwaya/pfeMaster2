@@ -51,7 +51,7 @@ function Home() {
         <AvisList />
       </div>
 
-      <Footer />
+      
     </>
   );
 }

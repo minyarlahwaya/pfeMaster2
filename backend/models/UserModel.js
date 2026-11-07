@@ -1,7 +1,7 @@
+
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
 const sequelize = require("../db/db");
-
 
 const User = sequelize.define("User", {
 
@@ -36,15 +36,14 @@ const User = sequelize.define("User", {
     },
 
     resetPasswordCode: {
-    type: DataTypes.STRING,
-    allowNull: true
-},
+        type: DataTypes.STRING,
+        allowNull: true
+    },
 
-
-resetPasswordExpires: {
-    type: DataTypes.DATE,
-    allowNull: true
-},
+    resetPasswordExpires: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
 
     telephone: {
         type: DataTypes.STRING(20),
@@ -71,7 +70,6 @@ resetPasswordExpires: {
         allowNull: false
     },
 
-    // Type de client
     typeClient: {
         type: DataTypes.ENUM(
             "particulier",
@@ -79,22 +77,6 @@ resetPasswordExpires: {
         ),
         allowNull: false,
         defaultValue: "particulier"
-    },
-
-    // Informations professionnelles
-    raisonSociale: {
-        type: DataTypes.STRING(255),
-        allowNull: true
-    },
-
-    activite: {
-        type: DataTypes.STRING(255),
-        allowNull: true
-    },
-
-    identifiantEntreprise: {
-        type: DataTypes.STRING(100),
-        allowNull: true
     },
 
     numeroTVA: {
@@ -107,7 +89,6 @@ resetPasswordExpires: {
         allowNull: true
     },
 
-    // Gestion des accès
     role: {
         type: DataTypes.ENUM(
             "admin",
@@ -122,64 +103,53 @@ resetPasswordExpires: {
         defaultValue: true
     },
 
-    // Double authentification (TOTP, application Authenticator)
+    // Double authentification
     mfaEnabled: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
     },
 
-    // Secret chiffré (AES-256-GCM), voir services/mfaService.js
     mfaSecret: {
         type: DataTypes.STRING(255),
         allowNull: true
     },
 
-    // Secret en attente de confirmation pendant l'enrôlement
     mfaTempSecret: {
         type: DataTypes.STRING(255),
         allowNull: true
     },
 
-    // Dernière période TOTP acceptée (refus de la réutilisation d'un code)
     mfaLastUsedStep: {
         type: DataTypes.BIGINT,
         allowNull: true
     },
 
-    // Empreintes SHA-256 des codes de secours restants
     mfaRecoveryCodes: {
         type: DataTypes.JSONB,
         allowNull: true
     }
 
-},
- {
+}, {
     tableName: "users",
     timestamps: true,
 
     hooks: {
 
         async beforeCreate(user) {
-
             if (user.password) {
                 user.password = await bcrypt.hash(user.password, 10);
             }
-
         },
 
         async beforeUpdate(user) {
-
             if (user.changed("password")) {
                 user.password = await bcrypt.hash(user.password, 10);
             }
-
         }
 
     }
 
 });
-
-
 
 module.exports = User;

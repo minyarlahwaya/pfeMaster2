@@ -416,3 +416,9 @@
 
 }
 
+.input-calcul {
+    background-color: #f1f1f1 !important;
+    color: #555 !important;
+    font-weight: 700;
+    cursor: not-allowed;
+}

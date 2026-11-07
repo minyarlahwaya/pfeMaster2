@@ -1,0 +1,134 @@
+# Pipeline CI/CD LANDOLSI TIRES — base de données Supabase
+#
+# La base n'est plus restaurée depuis des sauvegardes chiffrées : l'application
+# et ce pipeline se connectent directement au PostgreSQL managé Supabase
+# (session pooler, TLS vérifié avec backend/certs/prod-ca-2021.crt).
+#
+#   1. tests     : tests unitaires backend (sans base) + build du frontend
+#   2. supabase  : connexion à Supabase, application des migrations
+#                  (npm run db:migrate, idempotentes), contrôle des tables et
+#                  des données, démarrage de l'API et contrôle de /health
+#
+# Secrets requis (Settings > Secrets and variables > Actions) :
+#   SUPABASE_DB_HOST      ex. aws-0-eu-central-2.pooler.supabase.com
+#   SUPABASE_DB_PORT      5432 (session pooler)
+#   SUPABASE_DB_NAME      postgres
+#   SUPABASE_DB_USER      postgres.<project-ref>
+#   SUPABASE_DB_PASSWORD  mot de passe de la base Supabase
+
+name: CI/CD Supabase
+
+on:
+  push:
+    branches: [develop-landolsi, main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Tests backend (sans base)
+        working-directory: backend
+        env:
+          ENV_FILE: /nonexistent
+          RUN_API_TESTS: "0"
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+  supabase:
+    needs: tests
+    # Les secrets ne sont pas transmis aux pull requests venant de forks
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    env:
+      NODE_ENV: production
+      ENV_FILE: /nonexistent
+      JWT_SECRET: ci-only-jwt-secret-not-used-in-production-000000
+      DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
+      DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
+      DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
+      DB_USER: ${{ secrets.SUPABASE_DB_USER }}
+      DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      DB_SSL: "true"
+      DB_SSL_REJECT_UNAUTHORIZED: "true"
+      DB_SSL_CA_PATH: ./certs/prod-ca-2021.crt
+      DB_SYNC: none
+      DB_POOL_MAX: "5"
+      TELEGRAM_POLLING_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Vérifier les secrets Supabase
+        run: |
+          for v in DB_HOST DB_NAME DB_USER DB_PASSWORD; do
+            [ -n "${!v}" ] || { echo "::error::secret SUPABASE_$v absent"; exit 1; }
+          done
+
+      - name: Installer les dépendances backend
+        working-directory: backend
+        run: npm ci --no-audit --no-fund
+
+      - name: Appliquer les migrations sur Supabase
+        working-directory: backend
+        run: |
+          npx sequelize-cli db:migrate
+          npx sequelize-cli db:migrate:status
+
+      - name: Contrôler les tables et les données
+        env:
+          PGHOST: ${{ secrets.SUPABASE_DB_HOST }}
+          PGPORT: ${{ secrets.SUPABASE_DB_PORT }}
+          PGDATABASE: ${{ secrets.SUPABASE_DB_NAME }}
+          PGUSER: ${{ secrets.SUPABASE_DB_USER }}
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PGSSLMODE: verify-full
+          PGSSLROOTCERT: backend/certs/prod-ca-2021.crt
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -c 'SELECT (SELECT count(*) FROM users) users, (SELECT count(*) FROM "Marques") marques,
+            (SELECT count(*) FROM "Pneus") pneus, (SELECT count(*) FROM commandes) commandes,
+            (SELECT count(*) FROM factures) factures, (SELECT count(*) FROM avis) avis'
+          test "$(psql -XAt -c 'SELECT count(*) FROM users WHERE role = $$admin$$')" -ge 1
+          test "$(psql -XAt -c 'SELECT count(*) FROM "Pneus"')" -ge 1
+
+      - name: Démarrer l'API et contrôler /health
+        working-directory: backend
+        run: |
+          PORT=5001 node app.js > "$RUNNER_TEMP/api.log" 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:5001/health | tee /dev/stderr | grep -q '"database":"up"'; then
+              kill %1; exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/api.log"; exit 1

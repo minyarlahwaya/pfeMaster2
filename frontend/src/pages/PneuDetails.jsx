@@ -59,7 +59,7 @@ function PneuDetails() {
         <>
             <PneuDetail pneu={pneu} />
 
-            <Footer />
+           
         </>
     );
 }

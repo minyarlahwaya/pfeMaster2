@@ -9,6 +9,9 @@ const Promotion = require("./PromotionModel");
 const Facture = require("./FactureModel");
 const Avis = require("./AvisModel");
 const Reclamation = require("./ReclamationModel");
+const AvisLike = require("./AvisLikeModel");
+const ReponseAvis = require("./ReponseAvisModel");
+
 
 
 // ========================================
@@ -187,6 +190,61 @@ Reclamation.belongsTo(User, {
     foreignKey: "userId",
     as: "user"
 });
+
+
+ // ========================================
+ // Relation Avis - Likes
+ // ========================================
+
+Avis.hasMany(AvisLike, {
+    foreignKey: "avisId",
+    as: "likes",
+    onDelete: "CASCADE",
+    hooks: true
+});
+
+AvisLike.belongsTo(Avis, {
+    foreignKey: "avisId",
+    as: "avis"
+});
+
+User.hasMany(AvisLike, {
+    foreignKey: "userId",
+    as: "avisLikes"
+});
+
+AvisLike.belongsTo(User, {
+    foreignKey: "userId",
+    as: "utilisateur"
+});
+
+
+// ========================================
+// Relation Avis - Réponses
+// ========================================
+
+Avis.hasMany(ReponseAvis, {
+    foreignKey: "avisId",
+    as: "reponses",
+    onDelete: "CASCADE",
+    hooks: true
+});
+
+ReponseAvis.belongsTo(Avis, {
+    foreignKey: "avisId",
+    as: "avis"
+});
+
+User.hasMany(ReponseAvis, {
+    foreignKey: "userId",
+    as: "reponsesAvis"
+});
+
+ReponseAvis.belongsTo(User, {
+    foreignKey: "userId",
+    as: "auteur"
+});
+
 // ========================================
 // Export
 // ========================================
@@ -202,7 +260,10 @@ module.exports = {
       Promotion,
       Facture,
        Avis,
-    Reclamation
+       AvisLike,
+       ReponseAvis,
+    Reclamation,
+
 };
 
 

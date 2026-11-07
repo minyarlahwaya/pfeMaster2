@@ -1,0 +1,558 @@
+
+.gestion-avis-page {
+    min-height: 100vh;
+    padding: 35px;
+    background: #f5f6f8;
+    color: #252525;
+}
+
+/* HEADER */
+
+.gestion-avis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.gestion-avis-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.gestion-avis-header p {
+    color: #777;
+    margin: 0;
+}
+
+.gestion-avis-dashboard,
+.gestion-avis-retour {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    border: none;
+    border-radius: 7px;
+    background: #252525;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.gestion-avis-dashboard:hover,
+.gestion-avis-retour:hover {
+    background: #d71920;
+}
+
+/* STATISTIQUES */
+
+.gestion-avis-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.gestion-avis-stat {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    min-width: 220px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.gestion-avis-stat > svg {
+    color: #d71920;
+    font-size: 25px;
+}
+
+.gestion-avis-stat div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.gestion-avis-stat span {
+    color: #777;
+    font-size: 13px;
+}
+
+.gestion-avis-stat strong {
+    font-size: 23px;
+}
+
+/* TITRE SECTION */
+
+.gestion-avis-section-title {
+    margin-bottom: 20px;
+}
+
+.gestion-avis-section-title h2,
+.gestion-avis-list-title {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.gestion-avis-section-title p {
+    color: #777;
+    font-size: 14px;
+}
+
+/* RECHERCHE */
+
+.gestion-avis-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    max-width: 450px;
+    margin-bottom: 25px;
+    border: 1px solid #e5e5e5;
+}
+
+.gestion-avis-search svg {
+    color: #888;
+}
+
+.gestion-avis-search input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+/* GRILLE DES PNEUS */
+
+.gestion-avis-pneus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 22px;
+}
+
+.gestion-avis-pneu-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #eee;
+    transition: 0.25s;
+}
+
+.gestion-avis-pneu-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.09);
+    border-color: #d71920;
+}
+
+.gestion-avis-pneu-image {
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    padding: 15px;
+}
+
+.gestion-avis-pneu-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.gestion-avis-pneu-image span {
+    color: #999;
+}
+
+.gestion-avis-pneu-content {
+    padding: 17px;
+}
+
+.gestion-avis-pneu-content h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.gestion-avis-pneu-content > p {
+    color: #777;
+    font-size: 14px;
+}
+
+.gestion-avis-pneu-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.gestion-avis-pneu-footer span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #d71920;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.gestion-avis-pneu-footer button {
+    border: none;
+    background: #d71920;
+    color: white;
+    padding: 8px 13px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.gestion-avis-pneu-footer button:hover {
+    background: #a90f16;
+}
+
+/* RETOUR */
+
+.gestion-avis-retour {
+    margin-bottom: 25px;
+}
+
+/* PNEU SÉLECTIONNÉ */
+
+.gestion-avis-pneu-selected {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.gestion-avis-pneu-selected img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+}
+
+.gestion-avis-pneu-selected h2 {
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.gestion-avis-pneu-selected p {
+    color: #777;
+}
+
+.gestion-avis-pneu-selected strong {
+    color: #d71920;
+}
+
+/* CARTE AVIS */
+
+.gestion-avis-list-title {
+    margin-bottom: 20px;
+}
+
+.gestion-avis-card {
+    background: white;
+    padding: 23px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 9px rgba(0, 0, 0, 0.04);
+}
+
+.gestion-avis-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gestion-avis-client {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gestion-avis-avatar {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    background: #d71920;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.gestion-avis-client > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gestion-avis-client small {
+    color: #999;
+}
+
+.gestion-avis-delete {
+    background: #fff0f0;
+    color: #d71920;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.gestion-avis-delete:hover {
+    background: #d71920;
+    color: white;
+}
+
+/* ÉTOILES */
+
+.gestion-avis-etoiles {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 18px 0 12px;
+}
+
+.gestion-avis-etoiles svg {
+    font-size: 15px;
+}
+
+.etoile-active {
+    color: #f5a623;
+}
+
+.etoile-inactive {
+    color: #ddd;
+}
+
+.gestion-avis-etoiles span {
+    margin-left: 7px;
+    color: #777;
+    font-size: 13px;
+}
+
+/* COMMENTAIRE */
+
+.gestion-avis-commentaire {
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+/* RÉPONSES */
+
+.gestion-avis-reponses {
+    background: #f7f7f7;
+    border-left: 3px solid #d71920;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.gestion-avis-reponses h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.gestion-avis-reponse {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.gestion-avis-reponse:last-child {
+    border-bottom: none;
+}
+
+.gestion-avis-reponse strong {
+    font-size: 14px;
+}
+
+.gestion-avis-reponse p {
+    margin: 7px 0 0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.gestion-avis-admin-label {
+    display: inline-block;
+    margin-left: 9px;
+    color: #d71920;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.gestion-avis-reponse button {
+    align-self: flex-start;
+    border: none;
+    background: transparent;
+    color: #d71920;
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* FORMULAIRE RÉPONSE */
+
+.gestion-avis-reply-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.gestion-avis-reply-form label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.gestion-avis-reply-form label svg {
+    color: #d71920;
+}
+
+.gestion-avis-reply-form textarea {
+    width: 100%;
+    resize: vertical;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    padding: 12px;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.gestion-avis-reply-form textarea:focus {
+    border-color: #d71920;
+}
+
+.gestion-avis-reply-form button {
+    align-self: flex-end;
+    background: #d71920;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 18px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.gestion-avis-reply-form button:hover {
+    background: #a90f16;
+}
+
+.gestion-avis-reply-form button:disabled,
+.gestion-avis-delete:disabled,
+.gestion-avis-reponse button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* CHARGEMENT / ERREUR / VIDE */
+
+.gestion-avis-loading,
+.gestion-avis-empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: #777;
+    background: white;
+    border-radius: 10px;
+}
+
+.gestion-avis-error {
+    padding: 15px;
+    background: #fff0f0;
+    color: #b00020;
+    border-radius: 7px;
+    margin-bottom: 20px;
+}
+
+.gestion-avis-error button {
+    margin-left: 15px;
+    border: none;
+    background: transparent;
+    color: #b00020;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+    .gestion-avis-page {
+        padding: 20px 14px;
+    }
+
+    .gestion-avis-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .gestion-avis-header h1 {
+        font-size: 23px;
+    }
+
+    .gestion-avis-stats {
+        flex-direction: column;
+    }
+
+    .gestion-avis-stat {
+        width: 100%;
+    }
+
+    .gestion-avis-pneus-grid {
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    }
+
+    .gestion-avis-pneu-selected {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .gestion-avis-card {
+        padding: 16px;
+    }
+
+    .gestion-avis-reply-form button {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 420px) {
+
+    .gestion-avis-pneus-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gestion-avis-pneu-image {
+        height: 220px;
+    }
+
+}
+
+.gestion-avis-pneu-selected h2 {
+    color: #252525 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none;
+}

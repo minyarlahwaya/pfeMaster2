@@ -1,246 +1,247 @@
+
+/* ========================================
+   CONTENEUR PRINCIPAL
+======================================== */
+
 .auth-container {
+    min-height: 100vh;
+    background: #f5f5f5;
 
-  min-height: 100vh;
-  background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  padding: 50px 8%;
-
+    padding: 50px 8%;
 }
 
-
+/* ========================================
+   CARTE INSCRIPTION / CONNEXION
+======================================== */
 
 .auth-card {
+    background: white;
 
-  background: white;
+    width: 100%;
+    max-width: 600px;
 
-  width: 100%;
-  max-width: 600px;
+    padding: 40px;
 
-  padding: 40px;
+    border-radius: 12px;
 
-  border-radius: 12px;
-
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .auth-card h2 {
+    text-align: center;
 
-  text-align: center;
+    color: #111;
 
-  color: #111;
+    font-size: 32px;
 
-  font-size: 32px;
-
-  margin-bottom: 30px;
-
+    margin-bottom: 30px;
 }
 
-
-
-/* Choix type compte */
+/* ========================================
+   CHOIX TYPE DE COMPTE
+======================================== */
 
 .account-choice {
+    display: flex;
 
-  display: flex;
+    gap: 15px;
 
-  gap: 15px;
-
-  margin-bottom: 30px;
-
+    margin-bottom: 30px;
 }
-
-
 
 .account-choice button {
+    flex: 1;
 
-  flex:1;
+    padding: 12px;
 
-  padding:12px;
+    border: 2px solid #d71920;
 
-  border:2px solid #d71920;
-
-  background:white;
-
-  color:#d71920;
-
-  border-radius:5px;
-
-  cursor:pointer;
-
-  font-size:16px;
-
-}
-
-
-
-.account-choice button.active {
-
-  background:#d71920;
-
-  color:white;
-
-}
-
-
-
-/* Formulaire */
-
-form {
-
-  display:flex;
-
-  flex-direction:column;
-
-  gap:15px;
-
-}
-
-
-
-.input-group {
-
-  display:grid;
-
-  grid-template-columns:1fr 1fr;
-
-  gap:15px;
-
-}
-
-
-
-input {
-
-  width:100%;
-
-  padding:13px;
-
-  border:1px solid #ddd;
-
-  border-radius:5px;
-  background:white;
-
-  font-size:15px;
-
-  outline:none;
-  color:#111;   
-
-}
-
-
-
-input:focus {
-
-  border-color:#d71920;
-
-}
-
-
-
-
-
-.professional-fields {
-
-  display:flex;
-
-  flex-direction:column;
-
-  gap:15px;
-
-}
-
-
-
-/* Bouton */
-
-.submit-btn {
-
-  margin-top:15px;
-
-  padding:14px;
-
-  background:#d71920;
-
-  color:white;
-
-  border:none;
-
-  border-radius:5px;
-
-  cursor:pointer;
-
-  font-size:17px;
-
-}
-
-
-
-.submit-btn:hover {
-
-  background:#b31318;
-
-}
-/* Input avec erreur */
-.input-error {
-
-    border: 2px solid #d71920 !important;
-
-    background-color: #fff5f5;
-
-}
-
-
-/* Message erreur */
-.error {
+    background: white;
 
     color: #d71920;
 
-    font-size: 14px;
+    border-radius: 5px;
 
-    margin-top: 8px;     /* espace entre input et message */
+    cursor: pointer;
 
-    margin-bottom: 5px;
-
-    margin-left: 3px;    /* petit décalage à gauche */
-
+    font-size: 16px;
 }
 
+.account-choice button.active {
+    background: #d71920;
 
-
-
-@media(max-width:600px){
-
-
-.auth-card {
-
-  padding:25px;
-
+    color: white;
 }
 
+/* ========================================
+   FORMULAIRE
+======================================== */
+
+.auth-card form {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
 
 .input-group {
+    display: grid;
 
-  grid-template-columns:1fr;
+    grid-template-columns: 1fr 1fr;
 
+    gap: 15px;
+
+    align-items: start;
 }
 
+/* ========================================
+   CONTENEUR DES CHAMPS
+======================================== */
 
-.account-choice {
+.auth-card .field {
+    display: flex;
 
-  flex-direction:column;
+    flex-direction: column;
 
+    width: 100%;
+
+    min-width: 0;
 }
-/* Input avec erreur */
 
+/* ========================================
+   INPUTS ET SELECTS
+======================================== */
 
+.auth-card input,
+.auth-card select {
+    width: 100%;
 
+    padding: 13px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 5px;
+
+    background: white;
+
+    font-size: 15px;
+
+    outline: none;
+
+    color: #111;
+
+    box-sizing: border-box;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+    border-color: #d71920;
+}
+
+/* ========================================
+   CHAMP AVEC ERREUR
+======================================== */
+
+.auth-card input.input-error,
+.auth-card select.input-error {
+    border: 1.5px solid #d71920 !important;
+
+    background-color: #fffafa;
+}
+
+.auth-card input.input-error:focus,
+.auth-card select.input-error:focus {
+    border-color: #d71920 !important;
+
+    box-shadow: 0 0 0 2px rgba(215, 25, 32, 0.10);
+}
+
+/* ========================================
+   MESSAGE D'ERREUR
+======================================== */
+
+.auth-card .error {
+    color: #d71920;
+
+    font-size: 11px;
+
+    font-weight: 400;
+
+    line-height: 1.4;
+
+    margin: 5px 0 0 3px;
+
+    padding: 0;
+}
+
+.auth-card .general-error {
+    font-size: 12px;
+
+    margin: 0;
+
+    text-align: center;
+}
+
+/* ========================================
+   INFORMATIONS PROFESSIONNELLES
+======================================== */
+
+.professional-fields {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+.professional-fields h3 {
+    color: #111;
+
+    font-size: 20px;
+
+    margin: 10px 0;
+}
+
+/* ========================================
+   BOUTON DE VALIDATION
+======================================== */
+
+.submit-btn {
+    margin-top: 15px;
+
+    padding: 14px;
+
+    background: #d71920;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    font-size: 17px;
+
+    transition: background 0.2s ease;
+}
+
+.submit-btn:hover {
+    background: #b31318;
+}
+
+.submit-btn:disabled {
+    background: #999;
+
+    cursor: not-allowed;
 }
 
 /* ========================================
@@ -248,49 +249,106 @@ input:focus {
 ======================================== */
 
 .mfa-help {
+    text-align: center;
 
-  text-align: center;
+    color: #555;
 
-  color: #555;
+    margin-bottom: 20px;
 
-  margin-bottom: 20px;
-
-  line-height: 1.5;
-
+    line-height: 1.5;
 }
 
 .mfa-code-input {
+    text-align: center;
 
-  text-align: center;
+    font-size: 24px;
 
-  font-size: 24px;
-
-  letter-spacing: 6px;
-
+    letter-spacing: 6px;
 }
 
 .mfa-link-btn {
+    display: block;
 
-  display: block;
+    width: 100%;
 
-  width: 100%;
+    background: none;
 
-  background: none;
+    border: none;
 
-  border: none;
+    color: #c8102e;
 
-  color: #c8102e;
+    cursor: pointer;
 
-  cursor: pointer;
+    margin-top: 10px;
 
-  margin-top: 10px;
-
-  font-size: 14px;
-
+    font-size: 14px;
 }
 
 .mfa-link-btn:hover {
-
-  text-decoration: underline;
-
+    text-decoration: underline;
 }
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 600px) {
+
+    .auth-container {
+        padding: 25px 15px;
+    }
+
+    .auth-card {
+        padding: 25px 20px;
+    }
+
+    .auth-card h2 {
+        font-size: 25px;
+    }
+
+    .input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .account-choice {
+        flex-direction: column;
+    }
+}
+
+.register-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.register-buttons .submit-btn,
+.register-buttons .btn-cancel {
+    flex: 1;
+    margin-top: 0;
+    padding: 14px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.register-buttons .btn-cancel {
+    background: #6c757d;
+    color: white;
+    border: none;
+    transition: background 0.2s ease;
+}
+
+.register-buttons .btn-cancel:hover {
+    background: #565e64;
+}
+
+.register-buttons button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .register-buttons {
+        flex-direction: column;
+    }
+  }

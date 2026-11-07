@@ -1,5 +1,6 @@
 const { Sequelize } = require("sequelize");
 const config = require("../config");
+const { dialectOptions } = require("./ssl");
 
 const { db } = config;
 
@@ -18,10 +19,7 @@ const sequelize = new Sequelize(
       acquire: 30000,
       idle: 10000
     },
-    // Base managée (Supabase, RDS...) : connexion TLS
-    dialectOptions: db.ssl
-      ? { ssl: { require: true, rejectUnauthorized: db.sslRejectUnauthorized } }
-      : {}
+    dialectOptions: dialectOptions()
   }
 );
 

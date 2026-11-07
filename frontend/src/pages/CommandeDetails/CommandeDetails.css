@@ -215,7 +215,7 @@
 }
 
 
-.commande-card-header>div {
+.commande-card-header > div {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -702,79 +702,12 @@
         padding: 20px;
     }
 
-
-}
- .commande-item-price {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 5px;
 }
 
-.commande-original-price {
-    color: #888;
-    font-size: 14px;
-    text-decoration: line-through;
-}
+/* CONTENU DES AVIS */
 
-.commande-promotion {
-    display: inline-block;
-    background-color: #d71920;
-    color: white;
-    padding: 3px 7px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.commande-promo-price {
-    color: #d71920;
-    font-size: 17px;
-    font-weight: 700;
-}
-
-.commande-normal-price {
-    color: #222;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.commande-item-total {
-    margin-top: 4px;
-    color: #111;
-    font-size: 18px;
-    font-weight: 700;
-}
- .commande-facture-btn { width: 100%;
-     padding: 14px 18px;
-      border: none; 
-      border-radius: 8px;
-       background: #d71920;
-        color: white; 
-        font-size: 15px; 
-        font-weight: 600; 
-        
-        cursor: pointer;
-         margin-bottom: 12px; 
-         transition: 0.3s; } 
-         .commande-facture-btn:hover { 
-            background: #b9151b;
-             transform: translateY(-1px); }
-
-
-
-             .avis-deja-ajoute {
-    text-align: center;
-    padding: 20px;
-}
-
-.avis-deja-ajoute h3 {
-    margin-bottom: 10px;
-    color: #222;
-}
-
-.avis-deja-ajoute p {
-    color: #666;
+.commande-avis-content {
+    padding: 0 24px;
 }
 
 .avis-pneu-item {
@@ -784,4 +717,178 @@
 
 .avis-pneu-item:last-child {
     border-bottom: none;
+}
+
+.avis-pneu-entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.avis-pneu-infos {
+    flex: 1;
+    min-width: 0;
+}
+
+.avis-pneu-infos h3 {
+    margin: 0 0 7px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+}
+
+.avis-pneu-infos > span {
+    font-size: 13px;
+    color: #777;
+}
+
+.avis-toggle-btn {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border: 1px solid #c8102e;
+    border-radius: 50%;
+    background: #fff;
+    color: #c8102e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.avis-toggle-btn:hover {
+    background: #c8102e;
+    color: #fff;
+}
+
+.avis-form-container {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f8f8;
+    border: 1px solid #eee;
+    border-radius: 10px;
+}
+
+.avis-confirmation {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 10px 0 0;
+    color: #218838;
+    font-size: 13px;
+}
+
+.avis-confirmation svg {
+    flex-shrink: 0;
+}
+
+@media (max-width: 500px) {
+    .commande-avis-content {
+        padding: 0 16px;
+    }
+
+    .avis-form-container {
+        padding: 14px;
+    }
+}
+
+/* ========================================
+   BOUTON TÉLÉCHARGER LA FACTURE PDF
+======================================== */
+
+.commande-facture-btn {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 15px;
+    padding: 12px 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    background-color: #c8102e;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.commande-facture-btn:hover {
+    background-color: #a90d27;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.commande-facture-btn:active {
+    transform: translateY(0);
+}
+
+.commande-facture-btn:focus-visible {
+    outline: 3px solid rgba(200, 16, 46, 0.25);
+    outline-offset: 3px;
+}
+
+
+.summary-discount {
+    color: #16803d;
+    font-weight: 700;
+}
+
+.summary-discount-message {
+    margin-top: 12px;
+    padding: 10px;
+    background: #f0f9f1;
+    color: #16803d;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.avis-historique {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.avis-historique h4 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.avis-historique-item {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.avis-historique-note {
+    color: #f5ad00;
+    font-size: 19px;
+    letter-spacing: 2px;
+}
+
+.avis-historique-item p {
+    margin: 8px 0;
+    color: #444;
+}
+
+.avis-historique-item small {
+    color: #888;
+}
+
+.avis-toggle-btn {
+    cursor: pointer;
 }

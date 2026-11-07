@@ -1,6 +1,7 @@
 const Vehicule = require("../models/VehiculeModel");
 const Pneu = require("../models/PneuModel");
 const VehiculePneu = require("../models/VehiculePneuModel");
+const Marque = require("../models/MarqueModel");
 
 // ========================================
 // Ajouter une compatibilité véhicule / pneu
@@ -316,6 +317,81 @@ module.exports.supprimerCompatibilite = async (req, res) => {
 
             message:
                 "Impossible de supprimer la compatibilité."
+
+        });
+
+    }
+
+};
+
+
+
+// ========================================
+// Récupérer tous les véhicules enregistrés
+// ========================================
+module.exports.getAllVehicules = async (req, res) => {
+
+    try {
+
+        const vehicules = await Vehicule.findAll({
+
+            include: [
+                {
+                    model: Pneu,
+                    as: "pneus",
+
+                    attributes: [
+                        "id",
+                        "modele",
+                        "dimension",
+                        "largeur",
+                        "hauteur",
+                        "diametre",
+                        "saison",
+                        "prix",
+                        "stock",
+                        "image",
+                        "marqueId"
+                    ],
+
+                    include: [
+                        {
+                            model: Marque,
+                            as: "marque"
+                        }
+                    ],
+
+                    through: {
+                        attributes: []
+                    }
+                }
+            ],
+
+            order: [["createdAt", "DESC"]]
+
+        });
+
+        return res.status(200).json({
+
+            success: true,
+            nombre: vehicules.length,
+            vehicules
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Erreur récupération des véhicules :",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Impossible de récupérer les véhicules."
 
         });
 

@@ -19,11 +19,19 @@ const Facture = require("../models/FactureModel");
 // CRÉER UNE COMMANDE
 // ========================================
 
+
+
 module.exports.createCommande = async (req, res) => {
 
-    const transaction = await sequelize.transaction();
+    let transaction;
 
     try {
+
+        // ========================================
+        // DÉMARRER LA TRANSACTION
+        // ========================================
+
+        transaction = await sequelize.transaction();
 
         // ========================================
         // UTILISATEUR CONNECTÉ
@@ -31,29 +39,21 @@ module.exports.createCommande = async (req, res) => {
 
         const userId = req.userId;
 
-        console.log(
-            "Utilisateur connecté :",
-            userId
-        );
+        console.log("Utilisateur connecté :", userId);
 
-
-        // ========================================
-        // VÉRIFIER L'UTILISATEUR
-        // ========================================
-
-        const user = await User.findByPk(userId);
+        const user = await User.findByPk(userId, {
+            transaction
+        });
 
         if (!user) {
-
             await transaction.rollback();
+            transaction = null;
 
             return res.status(404).json({
                 success: false,
                 message: "Utilisateur introuvable."
             });
-
         }
-
 
         // ========================================
         // RÉCUPÉRER LE PANIER
@@ -61,122 +61,100 @@ module.exports.createCommande = async (req, res) => {
 
         const { items } = req.body;
 
-        if (
-            !items ||
-            !Array.isArray(items) ||
-            items.length === 0
-        ) {
-
+        if (!Array.isArray(items) || items.length === 0) {
             await transaction.rollback();
+            transaction = null;
 
             return res.status(400).json({
                 success: false,
                 message: "Le panier est vide."
             });
-
         }
 
-
         // ========================================
-        // CALCUL DU TOTAL
+        // INITIALISER LES VARIABLES
         // ========================================
 
+        let sousTotal = 0;
+        let quantiteTotale = 0;
+        let remisePourcentage = 0;
+        let remiseMontant = 0;
+        let typeRemise = "aucune";
         let total = 0;
 
         const produits = [];
 
-
         // ========================================
-        // PARCOURIR LES ARTICLES
+        // PARCOURIR LES ARTICLES DU PANIER
         // ========================================
 
         for (const item of items) {
 
-            // ========================================
-            // VÉRIFIER LES DONNÉES
-            // ========================================
-
             if (
                 !item.pneuId ||
-                !item.quantite
+                item.quantite === undefined ||
+                item.quantite === null
             ) {
-
                 await transaction.rollback();
+                transaction = null;
 
                 return res.status(400).json({
                     success: false,
-                    message:
-                        "pneuId et quantite sont obligatoires."
+                    message: "pneuId et quantite sont obligatoires."
                 });
-
             }
 
-
             // ========================================
-            // RÉCUPÉRER LE PNEU
-            // ========================================
-
-            const pneu = await Pneu.findByPk(
-                item.pneuId,
-                {
-                    transaction
-                }
-            );
-
-
-            if (!pneu) {
-
-                await transaction.rollback();
-
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        `Pneu ${item.pneuId} introuvable.`
-                });
-
-            }
-
-
-            // ========================================
-            // VÉRIFIER LA QUANTITÉ
+            // VALIDER LA QUANTITÉ
             // ========================================
 
             const quantite = Number(item.quantite);
 
             if (
-                !Number.isInteger(quantite) ||
+                !Number.isSafeInteger(quantite) ||
                 quantite <= 0
             ) {
-
                 await transaction.rollback();
+                transaction = null;
 
                 return res.status(400).json({
                     success: false,
-                    message:
-                        "La quantité est invalide."
+                    message: "La quantité est invalide."
                 });
-
             }
 
+            // ========================================
+            // RÉCUPÉRER LE PNEU
+            // ========================================
+
+            const pneu = await Pneu.findByPk(item.pneuId, {
+                transaction,
+                lock: transaction.LOCK.UPDATE
+            });
+
+            if (!pneu) {
+                await transaction.rollback();
+                transaction = null;
+
+                return res.status(404).json({
+                    success: false,
+                    message: `Pneu ${item.pneuId} introuvable.`
+                });
+            }
 
             // ========================================
             // VÉRIFIER LE STOCK
             // ========================================
 
-            if (
-                Number(pneu.stock) < quantite
-            ) {
-
+            if (Number(pneu.stock) < quantite) {
                 await transaction.rollback();
+                transaction = null;
 
                 return res.status(400).json({
                     success: false,
-                    message:
-                        `Stock insuffisant pour ${pneu.modele}.`
+                    message: `Stock insuffisant pour ${pneu.modele}.`
                 });
-
             }
-
 
             // ========================================
             // RECHERCHER LA PROMOTION
@@ -185,203 +163,169 @@ module.exports.createCommande = async (req, res) => {
             const maintenant = new Date();
 
             const promotion = await Promotion.findOne({
-
                 where: {
-
                     pneuId: pneu.id,
-
                     active: true
-
                 },
-
                 transaction
-
             });
 
-
             // ========================================
-            // PRIX ORIGINAL
+            // CALCULER LE PRIX
             // ========================================
 
-            const prixOriginal =
-                Number(pneu.prix);
+            const prixOriginal = Number(pneu.prix);
 
-            let prixFinal =
-                prixOriginal;
+            if (!Number.isFinite(prixOriginal) || prixOriginal < 0) {
+                throw new Error(
+                    `Prix invalide pour le pneu ${pneu.id}.`
+                );
+            }
 
+            let prixFinal = prixOriginal;
             let pourcentagePromotion = 0;
-
-
-            // ========================================
-            // VÉRIFIER LA PROMOTION
-            // ========================================
 
             if (promotion) {
 
-                const dateDebut =
-                    new Date(promotion.dateDebut);
+                const dateDebut = new Date(promotion.dateDebut);
+                const dateFin = new Date(promotion.dateFin);
 
-                const dateFin =
-                    new Date(promotion.dateFin);
+                const pourcentage = Number(promotion.pourcentage);
 
+                const datesValides =
+                    !Number.isNaN(dateDebut.getTime()) &&
+                    !Number.isNaN(dateFin.getTime());
 
-                console.log(
-                    "================================="
-                );
-
-                console.log(
-                    "PNEU ID :",
-                    pneu.id
-                );
-
-                console.log(
-                    "PRIX ORIGINAL :",
-                    prixOriginal
-                );
-
-                console.log(
-                    "PROMOTION TROUVÉE :",
-                    promotion.id
-                );
-
-                console.log(
-                    "POURCENTAGE :",
-                    promotion.pourcentage
-                );
-
-                console.log(
-                    "DATE ACTUELLE :",
-                    maintenant
-                );
-
-                console.log(
-                    "DATE DÉBUT :",
-                    dateDebut
-                );
-
-                console.log(
-                    "DATE FIN :",
-                    dateFin
-                );
-
-
-                // ========================================
-                // PROMOTION ACTIVE ET VALIDE
-                // ========================================
+                const pourcentageValide =
+                    Number.isFinite(pourcentage) &&
+                    pourcentage >= 0 &&
+                    pourcentage <= 100;
 
                 if (
+                    datesValides &&
+                    pourcentageValide &&
                     maintenant >= dateDebut &&
                     maintenant <= dateFin
                 ) {
 
-                    pourcentagePromotion =
-                        Number(
-                            promotion.pourcentage
-                        );
+                    pourcentagePromotion = pourcentage;
 
-
-                    // ========================================
-                    // CALCUL DU PRIX PROMOTIONNEL
-                    // ========================================
-
-                    prixFinal =
-                        prixOriginal -
+                    prixFinal = Number(
                         (
-                            prixOriginal *
-                            pourcentagePromotion /
-                            100
-                        );
-
-
-                    // Arrondir à 2 chiffres
-                    prixFinal =
-                        Number(
-                            prixFinal.toFixed(2)
-                        );
-
-
-                    console.log(
-                        "✅ PROMOTION APPLIQUÉE"
+                            prixOriginal -
+                            (prixOriginal * pourcentagePromotion / 100)
+                        ).toFixed(2)
                     );
 
                     console.log(
-                        "PRIX FINAL :",
-                        prixFinal
-                    );
-
-                    console.log(
-                        "RÉDUCTION :",
+                        `Promotion appliquée au pneu ${pneu.id} :`,
                         pourcentagePromotion,
                         "%"
                     );
-
-                } else {
-
-                    console.log(
-                        "⚠️ PROMOTION TROUVÉE MAIS HORS PÉRIODE"
-                    );
-
                 }
-
-            } else {
-
-                console.log(
-                    "❌ AUCUNE PROMOTION ACTIVE POUR LE PNEU",
-                    pneu.id
-                );
-
             }
 
+            // ========================================
+            // CALCULER LE SOUS-TOTAL
+            // APRÈS PROMOTIONS INDIVIDUELLES
+            // ========================================
 
-            console.log(
-                "PRIX FINAL ENREGISTRÉ :",
-                prixFinal
+            sousTotal += Number(
+                (prixFinal * quantite).toFixed(2)
             );
 
-            console.log(
-                "================================="
-            );
-
+            quantiteTotale += quantite;
 
             // ========================================
-            // CALCULER LE TOTAL
-            // ========================================
-
-            total +=
-                prixFinal *
-                quantite;
-
-
-            // ========================================
-            // STOCKER LE PRODUIT
+            // STOCKER LES PRODUITS
             // ========================================
 
             produits.push({
-
                 pneu,
-
                 quantite,
-
                 prixOriginal,
-
                 prixFinal,
-
                 pourcentagePromotion
-
             });
+        }
+
+        // ========================================
+        // ARRONDIR LE SOUS-TOTAL
+        // ========================================
+
+        sousTotal = Number(sousTotal.toFixed(2));
+
+        // ========================================
+        // DÉTERMINER LE TYPE DE CLIENT
+        // ========================================
+
+        const typeClient = String(
+            user.typeClient || ""
+        ).toLowerCase().trim();
+
+        // ========================================
+        // REMISE CLIENT PARTICULIER
+        // À PARTIR DE 4 PNEUS
+        // ========================================
+
+        if (
+            typeClient === "particulier" &&
+            quantiteTotale >= 4
+        ) {
+
+            remisePourcentage = 5;
+            typeRemise = "particulier";
 
         }
 
+        // ========================================
+        // REMISE CLIENT PROFESSIONNEL
+        // À PARTIR DE 10 PNEUS
+        // ========================================
+
+        else if (
+            typeClient === "professionnel" &&
+            quantiteTotale >= 10
+        ) {
+
+            remisePourcentage = 10;
+            typeRemise = "professionnel";
+
+        }
 
         // ========================================
-        // ARRONDIR LE TOTAL
+        // CALCULER LE MONTANT DE LA REMISE
         // ========================================
 
-        total =
-            Number(
-                total.toFixed(2)
-            );
+        remiseMontant = Number(
+            (
+                sousTotal * remisePourcentage / 100
+            ).toFixed(2)
+        );
 
+        // ========================================
+        // CALCULER LE TOTAL FINAL
+        // ========================================
+
+        total = Number(
+            (sousTotal - remiseMontant).toFixed(2)
+        );
+
+        // ========================================
+        // AFFICHER LES INFORMATIONS
+        // ========================================
+
+        console.log("========== REMISE COMMANDE ==========");
+
+        console.log("CLIENT :", user.prenom, user.nom);
+        console.log("TYPE CLIENT :", typeClient);
+        console.log("QUANTITÉ TOTALE :", quantiteTotale);
+        console.log("SOUS-TOTAL :", sousTotal);
+        console.log("REMISE :", remisePourcentage, "%");
+        console.log("MONTANT REMISE :", remiseMontant);
+        console.log("TOTAL FINAL :", total);
+
+        console.log("=====================================");
 
         // ========================================
         // CRÉER LA COMMANDE
@@ -389,138 +333,110 @@ module.exports.createCommande = async (req, res) => {
 
         const commande = await Commande.create({
 
-            userId:
-                user.id,
+            userId: user.id,
 
-            nom:
-                user.nom,
+            nom: user.nom,
+            prenom: user.prenom,
+            telephone: user.telephone,
+            adresse: user.adresse,
+            ville: user.ville,
+            codePostal: user.codePostal,
 
-            prenom:
-                user.prenom,
+            sousTotal,
+            remisePourcentage,
+            remiseMontant,
+            typeRemise,
 
-            telephone:
-                user.telephone,
+            total,
 
-            adresse:
-                user.adresse,
-
-            ville:
-                user.ville,
-
-            codePostal:
-                user.codePostal,
-
-            total:
-                total,
-
-            statut:
-                "en attente"
+            statut: "en attente"
 
         }, {
-
             transaction
-
         });
 
-
         // ========================================
-        // CRÉER LES ARTICLES DE LA COMMANDE
+        // CRÉER LES ARTICLES ET DIMINUER LE STOCK
         // ========================================
 
         for (const produit of produits) {
 
-            const pneu =
-                produit.pneu;
-
-            const quantite =
-                produit.quantite;
-
-            const prixOriginal =
-                produit.prixOriginal;
-
-            const prixFinal =
-                produit.prixFinal;
-
-            const pourcentagePromotion =
-                produit.pourcentagePromotion;
-
-
-            // ========================================
-            // CRÉER COMMANDE ITEM
-            // ========================================
-
             await CommandeItem.create({
 
-                commandeId:
-                    commande.id,
+                commandeId: commande.id,
 
-                pneuId:
-                    pneu.id,
+                pneuId: produit.pneu.id,
 
-                quantite:
-                    quantite,
+                quantite: produit.quantite,
 
-                // Prix réellement payé
-                prix:
-                    prixFinal,
+                prix: produit.prixFinal,
 
-                // Prix normal avant promotion
-                prixOriginal:
-                    prixOriginal,
+                prixOriginal: produit.prixOriginal,
 
-                // Pourcentage de promotion
-                pourcentagePromotion:
-                    pourcentagePromotion
+                pourcentagePromotion: produit.pourcentagePromotion
 
             }, {
-
                 transaction
-
             });
 
+            await produit.pneu.update({
 
-            // ========================================
-            // DIMINUER LE STOCK
-            // ========================================
-
-            await pneu.update({
-
-                stock:
-                    Number(pneu.stock) -
-                    quantite
+                stock: Number(produit.pneu.stock) - produit.quantite
 
             }, {
-
                 transaction
-
             });
-
         }
-
 
         // ========================================
         // VALIDER LA TRANSACTION
         // ========================================
 
         await transaction.commit();
+        transaction = null;
 
-        
         // ========================================
-        // NOTIFICATION TELEGRAM - NOUVELLE COMMANDE
+        // NOTIFICATION TELEGRAM
         // ========================================
 
         const messageTelegram =
+
             `🛒 NOUVELLE COMMANDE - LANDOLSI TIRES\n\n` +
+
             `📦 Commande n° : ${commande.id}\n` +
+
             `👤 Client : ${user.prenom} ${user.nom}\n` +
+
+            `🏷️ Type client : ${typeClient}\n` +
+
             `📞 Téléphone : ${user.telephone || "Non renseigné"}\n` +
-            `💰 Total : ${Number(total).toFixed(2)} DT\n` +
+
+            `📦 Quantité : ${quantiteTotale} pneus\n` +
+
+            `💰 Sous-total : ${sousTotal.toFixed(2)} DT\n` +
+
+            `🎁 Remise : ${remisePourcentage}%\n` +
+
+            `💵 Montant remise : ${remiseMontant.toFixed(2)} DT\n` +
+
+            `💰 Total final : ${total.toFixed(2)} DT\n` +
+
             `📌 Statut : ${commande.statut}\n\n` +
+
             `Le client récupérera sa commande chez LANDOLSI TIRES.`;
 
-        await envoyerNotificationTelegram(messageTelegram);
+        try {
 
+            await envoyerNotificationTelegram(messageTelegram);
 
+        } catch (telegramError) {
+
+            console.error(
+                "Erreur notification Telegram :",
+                telegramError.message
+            );
+
+        }
 
         // ========================================
         // RÉPONSE
@@ -530,67 +446,66 @@ module.exports.createCommande = async (req, res) => {
 
             success: true,
 
-            message:
-                "Commande créée avec succès.",
+            message: "Commande créée avec succès.",
 
             commande: {
 
-                id:
-                    commande.id,
+                id: commande.id,
 
-                total:
-                    commande.total,
+                sousTotal: commande.sousTotal,
 
-                statut:
-                    commande.statut
+                remisePourcentage: commande.remisePourcentage,
+
+                remiseMontant: commande.remiseMontant,
+
+                typeRemise: commande.typeRemise,
+
+                total: commande.total,
+
+                statut: commande.statut
 
             }
 
         });
 
-
     } catch (error) {
 
         console.error(
-            "❌ Erreur création commande :",
+            "Erreur création commande :",
             error
         );
 
-
         // ========================================
-        // ANNULER LA TRANSACTION
+        // ANNULER LA TRANSACTION SI NÉCESSAIRE
         // ========================================
 
-        try {
+        if (transaction) {
 
-            await transaction.rollback();
+            try {
 
-        } catch (rollbackError) {
+                await transaction.rollback();
 
-            console.error(
-                "Erreur rollback :",
-                rollbackError
-            );
+            } catch (rollbackError) {
 
+                console.error(
+                    "Erreur rollback :",
+                    rollbackError
+                );
+
+            }
         }
-
 
         return res.status(500).json({
 
             success: false,
 
-            message:
-                "Impossible de créer la commande.",
+            message: "Impossible de créer la commande.",
 
-            error:
-                error.message
+            error: error.message
 
         });
-
     }
-
 };
-
 
 // ========================================
 // RÉCUPÉRER UNE COMMANDE PAR ID
@@ -994,7 +909,10 @@ module.exports.getAllCommandesAdmin = async (req, res) => {
                         "nom",
                         "prenom",
                         "email",
-                        "telephone"
+                        "telephone",
+                        "typeClient",
+                        "numeroTVA",
+                        "secteur"
                     ]
                 },
 
@@ -1090,11 +1008,10 @@ module.exports.updateStatutCommande = async (req, res) => {
         // ========================================
 
         const statutsAutorises = [
-            "en attente",
+            "attente",
             "confirmée",
             "en préparation",
-            "expédiée",
-            "livrée",
+            "récupéréen e",
             "annulée"
         ];
 
@@ -1122,13 +1039,13 @@ module.exports.updateStatutCommande = async (req, res) => {
         // ========================================
 
         const commande = await Commande.findByPk(id);
-            
-           
+
+
 
         if (!commande) {
-            
 
-            
+
+
 
 
             return res.status(404).json({
@@ -1142,7 +1059,7 @@ module.exports.updateStatutCommande = async (req, res) => {
 
         }
 
-           // MÉMORISER L'ANCIEN STATUT
+        // MÉMORISER L'ANCIEN STATUT
         const ancienStatut = commande.statut;
         // ========================================
         // MODIFIER LE STATUT DE LA COMMANDE
@@ -1214,7 +1131,7 @@ module.exports.updateStatutCommande = async (req, res) => {
             }
 
         }
-            
+
         // ========================================
         // E-MAIL AU CLIENT : FACTURE + COMMANDE PRÊTE AU RETRAIT
         // Uniquement au passage à « confirmée » (pas de renvoi si
@@ -1234,12 +1151,13 @@ module.exports.updateStatutCommande = async (req, res) => {
         // NOTIFICATION TELEGRAM - CHANGEMENT DE STATUT
         if (ancienStatut !== commande.statut) {
             const messageTelegram =
-                `🔔 CHANGEMENT DE STATUT - LANDOLSI TIRES\n\n` +
-                `📦 Commande n° : ${commande.id}\n` +
-                `👤 Client : ${commande.prenom} ${commande.nom}\n` +
-                `🔄 Ancien statut : ${ancienStatut}\n` +
-                `✅ Nouveau statut : ${commande.statut}\n` +
-                `💰 Total : ${Number(commande.total).toFixed(2)} DT`;
+    `🔔 CHANGEMENT DE STATUT - LANDOLSI TIRES\n\n` +
+    `📦 Commande n° : ${commande.id}\n` +
+    `👤 Client : ${commande.prenom} ${commande.nom}\n` +
+    `🔄 Ancien statut : ${ancienStatut}\n` +
+    `✅ Nouveau statut : ${commande.statut}\n` +
+    `💰 Total : ${Number(commande.total).toFixed(2)} DT\n\n` +
+    `🏪 Retrait en magasin : LANDOLSI TIRES, Msaken`;
 
             await envoyerNotificationTelegram(messageTelegram);
         }

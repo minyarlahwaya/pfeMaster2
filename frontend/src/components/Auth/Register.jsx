@@ -1,19 +1,17 @@
+
 import "./Auth.css";
 import { register } from "../../services/apiuser";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 function Register() {
-
     const [typeAccount, setTypeAccount] = useState("particulier");
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
 
-
-
     const [formData, setFormData] = useState({
-
         nom: "",
         prenom: "",
         email: "",
@@ -22,182 +20,220 @@ function Register() {
         ville: "",
         codePostal: "",
         pays: "",
-
         password: "",
         confirmPassword: "",
-
         typeClient: "particulier",
-
         raisonSociale: "",
         activite: "",
         identifiantEntreprise: "",
         numeroTVA: "",
         secteur: ""
-
     });
 
+    // =====================================
+    // MODIFICATION DES CHAMPS
+    // =====================================
 
     const handleChange = (e) => {
-
         const { name, value } = e.target;
 
-
-        setFormData({
-
-            ...formData,
-
+        setFormData((prev) => ({
+            ...prev,
             [name]: value
+        }));
 
-        });
-
-
-        // supprimer l'erreur du champ corrigé
-        setErrors({
-
-            ...errors,
-
-            [name]: ""
-
-        });
-
+        // Supprimer l'erreur du champ modifié
+        setErrors((prev) => ({
+            ...prev,
+            [name]: "",
+            general: ""
+        }));
     };
 
-    const handleSubmit = async (e) => {
+    // =====================================
+    // CHANGEMENT TYPE DE COMPTE
+    // =====================================
 
+    const handleTypeAccount = (type) => {
+        setTypeAccount(type);
+
+        setFormData((prev) => ({
+            ...prev,
+            typeClient: type
+        }));
+
+        setErrors({});
+    };
+
+    // =====================================
+    // TRADUCTION DES ERREURS BACKEND
+    // =====================================
+
+    const traduireErreur = (field, message) => {
+        const erreurs = {
+            nom: {
+                "nom must be at least 2 characters":
+                    "Le nom doit contenir au moins 2 caractères."
+            },
+
+            prenom: {
+                "prenom must be at least 2 characters":
+                    "Le prénom doit contenir au moins 2 caractères."
+            },
+
+            email: {
+                "L'email est obligatoire":
+                    "L'adresse email est obligatoire.",
+                "Validation isEmail on email failed":
+                    "Veuillez saisir une adresse email valide."
+            },
+
+            telephone: {
+                "Le numéro doit contenir exactement 8 chiffres":
+                    "Le numéro doit contenir exactement 8 chiffres."
+            },
+
+            adresse: {
+                "L'adresse est obligatoire":
+                    "L'adresse est obligatoire."
+            },
+
+            pays: {
+                "Le pays est obligatoire":
+                    "Le pays est obligatoire."
+            },
+
+            ville: {
+                "La ville est obligatoire":
+                    "La ville est obligatoire."
+            },
+
+            codePostal: {
+                "Le code postal est obligatoire":
+                    "Le code postal est obligatoire."
+            },
+
+            password: {
+                "Le mot de passe doit contenir au moins une minuscule, une majuscule, un caractère spécial et un chiffre":
+                    "Le mot de passe doit contenir une minuscule, une majuscule, un caractère spécial et un chiffre."
+            }
+        };
+
+        return erreurs[field]?.[message] || message;
+    };
+
+    // =====================================
+    // SOUMISSION FORMULAIRE
+    // =====================================
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setErrors({});
 
         // Vérification confirmation mot de passe
         if (formData.password !== formData.confirmPassword) {
-
-           setErrors({
-
-        ...errors,
-
-        confirmPassword: "Les mots de passe ne correspondent pas"
-
-    });
-
+            setErrors({
+                confirmPassword: "Les mots de passe ne correspondent pas."
+            });
             return;
         }
 
-
+        setLoading(true);
 
         try {
-
-
-            // On enlève confirmPassword avant l'envoi
-            const userData = {
-
-                ...formData
-
-            };
-
+            // Ne pas envoyer confirmPassword au backend
+            const userData = { ...formData };
 
             delete userData.confirmPassword;
 
-
-
             const response = await register(userData);
-
 
             console.log(response.data);
 
+            alert("Compte créé avec succès !");
 
-            alert("Compte créé avec succès");
             navigate("/login");
 
-
-
         } catch (error) {
-
+            console.error("Erreur inscription :", error);
 
             const apiErrors = {};
 
+            const erreursBackend = error.response?.data?.errors;
 
-            error.response.data.errors.forEach((err) => {
+            if (Array.isArray(erreursBackend)) {
+                erreursBackend.forEach((err) => {
+                    if (err.field) {
+                        apiErrors[err.field] =
+                            traduireErreur(err.field, err.message);
+                    }
+                });
+            }
 
-                apiErrors[err.field] = err.message;
-
-            });
-
+            if (Object.keys(apiErrors).length === 0) {
+                apiErrors.general =
+                    error.response?.data?.message ||
+                    "Une erreur est survenue. Veuillez réessayer.";
+            }
 
             setErrors(apiErrors);
 
-
+        } finally {
+            setLoading(false);
         }
     };
+
+    // =====================================
+    // AFFICHAGE D'UN CHAMP
+    // =====================================
+
+    const renderError = (name) => {
+        if (!errors[name]) return null;
+
+        return (
+            <p className="error" role="alert">
+                {errors[name]}
+            </p>
+        );
+    };
+
     return (
-
         <div className="auth-container">
-
 
             <div className="auth-card">
 
+                <h2>Créer un compte</h2>
 
-                <h2>
-                    Créer un compte
-                </h2>
-
-
+                {/* CHOIX TYPE COMPTE */}
 
                 <div className="account-choice">
 
-
                     <button
                         type="button"
-                        className={
-                            typeAccount === "particulier" ? "active" : ""
-                        }
-                        onClick={() => {
-
-                            setTypeAccount("particulier");
-
-                            setFormData({
-                                ...formData,
-                                typeClient: "particulier"
-                            });
-
-                        }}
+                        className={typeAccount === "particulier" ? "active" : ""}
+                        onClick={() => handleTypeAccount("particulier")}
                     >
                         Particulier
                     </button>
 
-
-
                     <button
                         type="button"
-                        className={
-                            typeAccount === "professionnel" ? "active" : ""
-                        }
-                        onClick={() => {
-
-                            setTypeAccount("professionnel");
-
-                            setFormData({
-                                ...formData,
-                                typeClient: "professionnel"
-                            });
-
-                        }}
+                        className={typeAccount === "professionnel" ? "active" : ""}
+                        onClick={() => handleTypeAccount("professionnel")}
                     >
                         Professionnel
                     </button>
 
-
                 </div>
 
+                <form onSubmit={handleSubmit} noValidate>
 
-
-
-                <form onSubmit={handleSubmit}>
-
+                    {/* NOM ET PRENOM */}
 
                     <div className="input-group">
 
-
                         <div className="field">
-
                             <input
                                 type="text"
                                 name="nom"
@@ -206,365 +242,237 @@ function Register() {
                                 onChange={handleChange}
                                 className={errors.nom ? "input-error" : ""}
                             />
-
-                            {
-                                errors.nom && (
-                                    <p className="error">
-                                        {errors.nom}
-                                    </p>
-                                )
-                            }
-
+                            {renderError("nom")}
                         </div>
 
-
-
                         <div className="field">
-
                             <input
                                 type="text"
                                 name="prenom"
                                 placeholder="Prénom"
                                 value={formData.prenom}
                                 onChange={handleChange}
-                                 className={errors.prenom ? "input-error" : ""}
+                                className={errors.prenom ? "input-error" : ""}
                             />
-                             {
-                                errors.prenom && (
-                                    <p className="error">
-                                        {errors.prenom}
-                                    </p>
-                                )
-                            }
-
+                            {renderError("prenom")}
                         </div>
 
-
                     </div>
 
+                    {/* EMAIL */}
 
+                    <div className="field">
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Adresse email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className={errors.email ? "input-error" : ""}
+                        />
+                        {renderError("email")}
+                    </div>
 
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Adresse email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className={errors.email ? "input-error" : ""}
-                    />
-                     {
-                                errors.email && (
-                                    <p className="error">
-                                        {errors.email}
-                                    </p>
-                                )
-                            }
+                    {/* TELEPHONE */}
 
+                    <div className="field">
+                        <input
+                            type="tel"
+                            name="telephone"
+                            placeholder="Numéro téléphone"
+                            value={formData.telephone}
+                            onChange={handleChange}
+                            className={errors.telephone ? "input-error" : ""}
+                        />
+                        {renderError("telephone")}
+                    </div>
 
+                    {/* ADRESSE */}
 
+                    <div className="field">
+                        <input
+                            type="text"
+                            name="adresse"
+                            placeholder="Adresse"
+                            value={formData.adresse}
+                            onChange={handleChange}
+                            className={errors.adresse ? "input-error" : ""}
+                        />
+                        {renderError("adresse")}
+                    </div>
 
-                    <input
-                        type="tel"
-                        name="telephone"
-                        placeholder="Numéro téléphone"
-                        value={formData.telephone}
-                        onChange={handleChange}
-                    className={errors.telephone ? "input-error" : ""}
-                    />
-                     {
-                                errors.telephone && (
-                                    <p className="error">
-                                        {errors.telephone}
-                                    </p>
-                                )
-                            }
-
-
-                    <input
-                        type="text"
-                        name="adresse"
-                        placeholder="Adresse"
-                        value={formData.adresse}
-                        onChange={handleChange}
-                    className={errors.adresse ? "input-error" : ""}
-                    />
-                     {
-                                errors.adresse && (
-                                    <p className="error">
-                                        {errors.adresse}
-                                    </p>
-                                )
-                            }
-
-
-
+                    {/* PAYS ET VILLE */}
 
                     <div className="input-group">
-<div>
 
-                        <input
-                            type="text"
-                            name="pays"
-                            placeholder="Pays"
-                            value={formData.pays}
-                            onChange={handleChange}
-                        className={errors.pays ? "input-error" : ""}
-                    />
-                     {
-                                errors.pays && (
-                                    <p className="error">
-                                        {errors.pays}
-                                    </p>
-                                )
-                            }
-                            </div>
-                            <div>
-                        <input
-                            type="text"
-                            name="ville"
-                            placeholder="Ville"
-                            value={formData.ville}
-                            onChange={handleChange}
-                        className={errors.ville ? "input-error" : ""}
-                    />
-                     {
-                                errors.ville && (
-                                    <p className="error">
-                                        {errors.ville}
-                                    </p>
-                                )
-                            }
-                            </div>
+                        <div className="field">
+                            <input
+                                type="text"
+                                name="pays"
+                                placeholder="Pays"
+                                value={formData.pays}
+                                onChange={handleChange}
+                                className={errors.pays ? "input-error" : ""}
+                            />
+                            {renderError("pays")}
+                        </div>
+
+                        <div className="field">
+                            <input
+                                type="text"
+                                name="ville"
+                                placeholder="Ville"
+                                value={formData.ville}
+                                onChange={handleChange}
+                                className={errors.ville ? "input-error" : ""}
+                            />
+                            {renderError("ville")}
+                        </div>
+
                     </div>
 
+                    {/* CODE POSTAL */}
 
+                    <div className="field">
+                        <input
+                            type="text"
+                            name="codePostal"
+                            placeholder="Code postal"
+                            value={formData.codePostal}
+                            onChange={handleChange}
+                            className={errors.codePostal ? "input-error" : ""}
+                        />
+                        {renderError("codePostal")}
+                    </div>
 
+                    {/* MOT DE PASSE */}
 
+                    <div className="field">
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Mot de passe"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className={errors.password ? "input-error" : ""}
+                        />
+                        {renderError("password")}
+                    </div>
 
-                    <input
-                        type="text"
-                        name="codePostal"
-                        placeholder="Code postal"
-                        value={formData.codePostal}
-                        onChange={handleChange}
-                     className={errors.codePostal ? "input-error" : ""}
-                    />
-                     {
-                                errors.codePostal && (
-                                    <p className="error">
-                                        {errors.codePostal}
-                                    </p>
-                                )
+                    {/* CONFIRMATION MOT DE PASSE */}
+
+                    <div className="field">
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="Confirmation mot de passe"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            className={
+                                errors.confirmPassword ? "input-error" : ""
                             }
+                        />
+                        {renderError("confirmPassword")}
+                    </div>
 
+                    {/* INFORMATIONS PROFESSIONNELLES */}
 
+                    {typeAccount === "professionnel" && (
 
+                        <div className="professional-fields">
 
+                            <h3>Informations entreprise</h3>
 
+                            
 
+                            
 
-                    {/* Sécurité */}
+                            
 
-
-
-
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Mot de passe"
-                        value={formData.password}
-                        onChange={handleChange}
-                    className={errors.password ? "input-error" : ""}
-                    />
-                     {
-                                errors.password && (
-                                    <p className="error">
-                                        {errors.password}
-                                    </p>
-                                )
-                            }
-                    <input
-    type="password"
-    name="confirmPassword"
-    placeholder="Confirmation mot de passe"
-    value={formData.confirmPassword}
-    onChange={handleChange}
-    className={errors.confirmPassword ? "input-error" : ""}
-/>
-
-
-{
-    errors.confirmPassword && (
-
-        <p className="error">
-            {errors.confirmPassword}
-        </p>
-
-    )
-}
-
-
-                    {/* Informations professionnelles */}
-
-
-                    {
-                        typeAccount === "professionnel" && (
-
-
-                            <div className="professional-fields">
-
-
-                                <h3>
-                                    Informations entreprise
-                                </h3>
-
-
-
-                                <input
-                                    type="text"
-                                    name="raisonSociale"
-                                    placeholder="Raison sociale *"
-                                    value={formData.raisonSociale}
-                                    onChange={handleChange}
-                                 className={errors.raisonSociale ? "input-error" : ""}
-                    />
-                     {
-                                errors.raisonSociale && (
-                                    <p className="error">
-                                        {errors.raisonSociale}
-                                    </p>
-                                )
-                            }
-
-
-
-                                <input
-                                    type="text"
-                                    name="activite"
-                                    placeholder="Activité"
-                                    value={formData.activite}
-                                    onChange={handleChange}
-                                 className={errors.activite ? "input-error" : ""}
-                    />
-                     {
-                                errors.activite && (
-                                    <p className="error">
-                                        {errors.activite}
-                                    </p>
-                                )
-                            }
-
-
-
-                                <input
-                                    type="text"
-                                    name="identifiantEntreprise"
-                                    placeholder="SIRET / SIREN *"
-                                    value={formData.identifiantEntreprise}
-                                    onChange={handleChange}
-                               className={errors.identifiantEntreprise ? "input-error" : ""}
-                    />
-                     {
-                                errors.identifiantEntreprise && (
-                                    <p className="error">
-                                        {errors.identifiantEntreprise}
-                                    </p>
-                                )
-                            }
-
-
-
+                            <div className="field">
                                 <input
                                     type="text"
                                     name="numeroTVA"
                                     placeholder="Numéro TVA intracommunautaire"
                                     value={formData.numeroTVA}
                                     onChange={handleChange}
-                                className={errors.numeroTVA ? "input-error" : ""}
-                    />
-                     {
-                                errors.numeroTVA && (
-                                    <p className="error">
-                                        {errors.numeroTVA}
-                                    </p>
-                                )
-                            }
+                                    className={
+                                        errors.numeroTVA ? "input-error" : ""
+                                    }
+                                />
+                                {renderError("numeroTVA")}
+                            </div>
 
-
-
+                            <div className="field">
                                 <select
                                     name="secteur"
                                     value={formData.secteur}
                                     onChange={handleChange}
+                                    className={
+                                        errors.secteur ? "input-error" : ""
+                                    }
                                 >
-
-
                                     <option value="">
                                         Secteur d'activité *
                                     </option>
-
-
                                     <option value="Commerce automobile">
                                         Commerce automobile
                                     </option>
-
-
                                     <option value="Distribution pneus">
                                         Distribution pneus
                                     </option>
-
-
                                     <option value="Garage automobile">
                                         Garage automobile
                                     </option>
-
-
                                     <option value="Autre">
                                         Autre
                                     </option>
-
-
                                 </select>
 
-
-
+                                {renderError("secteur")}
                             </div>
 
+                        </div>
 
-                        )
-                    }
+                    )}
 
+                    {/* ERREUR GENERALE */}
 
+                    {errors.general && (
+                        <p className="error general-error" role="alert">
+                            {errors.general}
+                        </p>
+                    )}
 
+                    {/* BOUTON */}
 
+                    <div className="register-buttons">
+    <button
+        type="submit"
+        className="submit-btn"
+        disabled={loading}
+    >
+        {loading ? "Création en cours..." : "Créer mon compte"}
+    </button>
 
+    <button
+        type="button"
+        className="btn-cancel"
+        disabled={loading}
+        onClick={() => navigate("/")}
+    >
+        Annuler
+    </button>
+</div>
 
-                    <button
-                        type="submit"
-                        className="submit-btn"
-
-                    >
-
-                        Créer mon compte
-
-                    </button>
-
-
+                    
 
                 </form>
 
-
-
             </div>
 
-
-
         </div>
-
-
     );
-
 }
-
 
 export default Register;
